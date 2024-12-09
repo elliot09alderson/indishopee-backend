@@ -21,7 +21,6 @@ app.use(
       "http://localhost:4001",
       "http://localhost:4002",
     ],
-    // origin: "*",
 
     credentials: true,
   })

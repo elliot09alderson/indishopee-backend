@@ -20,6 +20,6 @@ router.post(
   authControllers.profile_info_add
 );
 
-router.get("/logout", authMiddleware, authControllers.logout);
+router.get("/logout", authControllers.logout);
 
 module.exports = router;
