@@ -2,6 +2,7 @@ const bcrypt = require("bcryptjs");
 const { createUserToken } = require("../../utils/generateToken.js");
 const { sendOTP } = require("../../utils/sendPhoneOTP.js");
 const customerModel = require("../../models/customerModel.js");
+const generateOTP = require("../../utiles/generateOtp.js");
 
 // _______________________  | MOBILE |   ___________________________
 
@@ -113,7 +114,7 @@ async function registerUser(req, res) {
     }
     const isUserExist = await customerModel.findOne({ phonenumber });
 
-    const otp = generateOtp();
+    const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 30 * 1000); // OTP valid for 30 sec
     if (isUserExist) {
       if (!isUserExist.isRegistered) {
@@ -234,7 +235,7 @@ const resetPasswordSendOtp = async (req, res) => {
       .json({ status: 400, message: "Phonenumber is required" });
 
   try {
-    const user = await User.findOne({ phonenumber });
+    const user = await customerModel.findOne({ phonenumber });
     if (!user)
       return res
         .status(404)
@@ -283,7 +284,7 @@ const changePassword = async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({ phonenumber });
+    const user = await customerModel.findOne({ phonenumber });
     if (!user)
       return res.status(200).json({ status: 404, message: "user not found" });
 
@@ -294,7 +295,7 @@ const changePassword = async (req, res) => {
         .status(200)
         .json({ status: 401, message: "invalid credentials" });
     }
-    const updatedUser = await User.findOneAndUpdate(
+    const updatedUser = await customerModel.findOneAndUpdate(
       { phonenumber },
       {
         passResetOtp: null,
@@ -332,7 +333,7 @@ const resetPasswordVerifyOtp = async (req, res) => {
     });
 
   try {
-    const user = await User.findOne({ phonenumber });
+    const user = await customerModel.findOne({ phonenumber });
     if (!user)
       return res
         .status(404)
@@ -348,7 +349,7 @@ const resetPasswordVerifyOtp = async (req, res) => {
         message: "Invalid or expired OTP",
       });
     }
-    const updatedUser = await User.findOneAndUpdate(
+    const updatedUser = await customerModel.findOneAndUpdate(
       {
         phonenumber,
         passResetOtp: otp,
@@ -385,7 +386,7 @@ const resendPhoneOtp = async (req, res) => {
       .json({ status: 400, message: "Phone number is required" });
 
   try {
-    const user = await User.findOne({ phonenumber });
+    const user = await customerModel.findOne({ phonenumber });
     if (!user)
       return res
         .status(404)
@@ -440,16 +441,18 @@ const updateDetails = async (req, res) => {
       });
     }
 
-    const updatedUser = await User.findOneAndUpdate(
-      { phonenumber },
-      {
-        email,
-        address,
-        name,
-        dob,
-      },
-      { new: true, runValidators: true }
-    ).select("-password");
+    const updatedUser = await customerModel
+      .findOneAndUpdate(
+        { phonenumber },
+        {
+          email,
+          address,
+          name,
+          dob,
+        },
+        { new: true, runValidators: true }
+      )
+      .select("-password");
 
     if (!updatedUser) {
       return res.json({
@@ -496,7 +499,7 @@ const setPassword = async (req, res) => {
   }
 
   try {
-    const user = await User.findOne({ phonenumber });
+    const user = await customerModel.findOne({ phonenumber });
     if (!user)
       return res
         .status(404)
@@ -558,7 +561,7 @@ async function userPhoneLogout(req, res) {
 async function deleteuser(req, res) {
   const { id } = req.params;
 
-  const deletedUser = await User.findById(id);
+  const deletedUser = await customerModel.findById(id);
   if (!deletedUser) {
     res.json({ success: false, message: "User not deleted  " });
   }
@@ -582,14 +585,14 @@ async function deleteuser(req, res) {
 async function generateUpiId(req, res) {
   const { phonenumber } = req.body;
 
-  const user = await User.findOne({ phonenumber });
+  const user = await customerModel.findOne({ phonenumber });
   if (!user) {
     res.json({ status: 404, success: false, message: "User not found  " });
   }
   const genString = phonenumber + "@axonpay";
 
   if (!user.upiId) {
-    const updatedUser = await User.findByIdAndUpdate(
+    const updatedUser = await customerModel.findByIdAndUpdate(
       { phonenumber },
       { upiId: genString },
       { new: true }
