@@ -17,6 +17,7 @@ class customerAuthController {
           email: email.trim(),
           password: await bcrypt.hash(password, 10),
           method: "menualy",
+          isRegistered: true,
         });
         await sellerCustomerModel.create({
           myId: createCustomer.id,

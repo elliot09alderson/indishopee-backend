@@ -6,13 +6,16 @@ const customerSchema = new Schema(
       type: String,
       required: true,
     },
+    phonenumber: {
+      type: String,
+    },
     email: {
       type: String,
       required: true,
     },
     password: {
       type: String,
-      required: true,
+      // required: true,
       select: false,
     },
     role: {
@@ -22,6 +25,26 @@ const customerSchema = new Schema(
     method: {
       type: String,
       required: true,
+    },
+    isRegistered: {
+      type: Boolean,
+      default: false,
+    },
+    otp: {
+      type: String,
+      required: false,
+    },
+    otpExpiry: {
+      type: Date,
+      required: false,
+    },
+    passResetOtp: {
+      type: String,
+      required: false,
+    },
+    passResetOtpExpiry: {
+      type: Date,
+      required: false,
     },
   },
   { timestamps: true }

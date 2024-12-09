@@ -123,7 +123,11 @@ class authControllers {
           { _id: sellerData._id },
           { otp: null }
         );
-        responseReturn(res, 200, { token, message: "Login successfully" });
+        responseReturn(res, 200, {
+          token,
+          message: "logged in successfully ",
+          status: 200,
+        });
       } else {
         responseReturn(res, 401, { error: "Invalid OTP" });
       }
@@ -133,10 +137,8 @@ class authControllers {
   };
 
   seller_register = async (req, res) => {
-
-    console.log("hello")
+    console.log("hello");
     const form = formidable({ multiples: true });
-
 
     try {
       form.parse(req, async (err, fields, files) => {
@@ -164,28 +166,25 @@ class authControllers {
           return;
         }
 
-
         let docs = [];
         try {
-          
-       
-        const filesArray = Object.values(files);
-console.log(filesArray)
-        for (let i = 0; i < filesArray.length; i++) {
-          const file = filesArray[i];
-          console.log(file)
-          const result = await cloudinary.uploader.upload(file.path, {
-            folder: "seller-documents-indishopee",
-            resource_type: "raw",
-          });
-          docs.push({
-            url: result.url,
-          });
+          const filesArray = Object.values(files);
+          console.log(filesArray);
+          for (let i = 0; i < filesArray.length; i++) {
+            const file = filesArray[i];
+            console.log(file);
+            const result = await cloudinary.uploader.upload(file.path, {
+              folder: "seller-documents-indishopee",
+              resource_type: "raw",
+            });
+            docs.push({
+              url: result.url,
+            });
+          }
+          console.log(docs);
+        } catch (error) {
+          console.log(error.message);
         }
-        console.log(docs)
-      } catch (error) {
-        console.log(error.message)
-      }
         const seller = await sellerModel.create({
           name,
           email,
@@ -200,7 +199,6 @@ console.log(filesArray)
           doc: docs,
           password: await bcrypt.hash(password, 10),
           method: "manual",
-         
         });
 
         await sellerCustomerModel.create({
@@ -247,7 +245,7 @@ console.log(filesArray)
     const form = formidable({ multiples: true });
     form.parse(req, async (err, _, files) => {
       // console.log(files, "files..");
-     
+
       const { image } = files;
       try {
         const cropParams = {
@@ -281,13 +279,15 @@ console.log(filesArray)
   };
 
   profile_info_add = async (req, res) => {
-    const { pincode,category, businessName, businessAddress } = req.body;
+    const { pincode, category, businessName, businessAddress } = req.body;
     const { id } = req;
 
     try {
-      await sellerModel.findByIdAndUpdate(id, {pincode,category, businessName, businessAddress
-        
-      },{new:true});
+      await sellerModel.findByIdAndUpdate(
+        id,
+        { pincode, category, businessName, businessAddress },
+        { new: true }
+      );
       const userInfo = await sellerModel.findById(id);
       responseReturn(res, 201, {
         message: "Profile info add success",
