@@ -9,7 +9,7 @@ const generateOTP = require("../../utiles/generateOtp.js");
 async function sendLoginPhoneOTP(req, res) {
   try {
     const { phonenumber } = req.body;
-    const otp = generateOtp();
+    const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 30 * 1000); // 5 minutes from now
 
     let user = await customerModel.findOne({ phonenumber });
@@ -241,7 +241,7 @@ const resetPasswordSendOtp = async (req, res) => {
         .status(404)
         .json({ status: 404, message: "User not registered" });
 
-    const otp = generateOtp();
+    const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 30 * 1000); // 5 minutes from now
     user.passResetOtp = otp;
     user.passResetOtpExpiry = otpExpiry;
@@ -392,7 +392,7 @@ const resendPhoneOtp = async (req, res) => {
         .status(404)
         .json({ status: 404, message: "User not registered" });
 
-    const otp = generateOtp();
+    const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 5 * 60 * 1000); // 5 minutes from now
     user.otp = otp;
     user.otpExpiry = otpExpiry;
