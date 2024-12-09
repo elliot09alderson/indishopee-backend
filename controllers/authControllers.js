@@ -153,17 +153,7 @@ class authControllers {
           pincode,
           gst,
         } = fields;
-console.log(    email,
-  name,
-  password,
-  businessName,
-  pan,
-  subCategory,
-  category,
-  adhaar,
-  businessAddress,
-  pincode,
-  gst,)
+
         const user = await sellerModel.findOne({ email });
 
         if (user) {
@@ -173,20 +163,29 @@ console.log(    email,
           });
           return;
         }
-        let docs = [];
-        const filesArray = Object.values(files);
 
+
+        let docs = [];
+        try {
+          
+       
+        const filesArray = Object.values(files);
+console.log(filesArray)
         for (let i = 0; i < filesArray.length; i++) {
           const file = filesArray[i];
+          console.log(file)
           const result = await cloudinary.uploader.upload(file.path, {
-            folder: "documents",
+            folder: "seller-documents-indishopee",
             resource_type: "raw",
           });
           docs.push({
             url: result.url,
           });
         }
-
+        console.log(docs)
+      } catch (error) {
+        console.log(error.message)
+      }
         const seller = await sellerModel.create({
           name,
           email,
@@ -201,7 +200,7 @@ console.log(    email,
           doc: docs,
           password: await bcrypt.hash(password, 10),
           method: "manual",
-          shopInfo: {},
+         
         });
 
         await sellerCustomerModel.create({
@@ -224,7 +223,7 @@ console.log(    email,
         });
       });
     } catch (error) {
-      console.error("internal server error", error);
+      console.error("internal server error", error.message);
     }
   };
 
@@ -282,17 +281,12 @@ console.log(    email,
   };
 
   profile_info_add = async (req, res) => {
-    const { division, district, shopName, sub_district } = req.body;
+    const { pincode,category, businessName, businessAddress } = req.body;
     const { id } = req;
 
     try {
-      await sellerModel.findByIdAndUpdate(id, {
-        shopInfo: {
-          shopName,
-          division,
-          district,
-          sub_district,
-        }
+      await sellerModel.findByIdAndUpdate(id, {pincode,category, businessName, businessAddress
+        
       },{new:true});
       const userInfo = await sellerModel.findById(id);
       responseReturn(res, 201, {

@@ -23,12 +23,7 @@ const sellerSchema = new Schema(
       type: String,
       default: "pending",
     },
-    shopInfo: {
-      shopName: { type: String, required: true },
-  division: { type: String, required: true },
-  district: { type: String, required: true },
-  sub_district: { type: String, required: true },
-    },
+
     otp: {
       type: Number,
       default: null,
@@ -50,6 +45,20 @@ const sellerSchema = new Schema(
       type: String,
       default: "",
     },
+    businessAddress: {
+      type: String,
+      default: "",
+    },
+    category: {
+      type: String,
+      default: "",
+      required: false,
+    },
+    subCategory: {
+      type: String,
+      default: "",
+      required: false,
+    },
     pan: {
       type: String,
       default: "",
@@ -60,10 +69,6 @@ const sellerSchema = new Schema(
       default: [],
     },
     adhaar: {
-      type: String,
-      default: "",
-    },
-    businessAddress: {
       type: String,
       default: "",
     },
@@ -78,16 +83,6 @@ const sellerSchema = new Schema(
     gst: {
       type: String,
       default: "",
-    },
-    category: {
-      type: String,
-      default: "",
-      required: false,
-    },
-    subCategory: {
-      type: String,
-      default: "",
-      required: false,
     },
   },
   { timestamps: true }

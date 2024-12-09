@@ -21,7 +21,7 @@ const stripe = require("stripe")(
 class orderController {
   add_address = async (req, res) => {
     try {
-      const { userInfo } = req.params;
+      const userInfo = req.id
       const {
         pincode,
         state,
@@ -84,13 +84,13 @@ class orderController {
     }
   };
   get_all_address = async (req, res) => {
-    const { userInfo } = req.params;
+    const { id } = req;
     try {
-      const address = await customerAddressModel.find({ userId: userInfo });
+      const address = await customerAddressModel.find({ userId: id });
 
       if (address) {
         responseReturn(res, 200, {
-          message: "address added successfully",
+          message: "address fetched successfully",
           address,
         });
       }
@@ -99,7 +99,7 @@ class orderController {
     }
   };
   get_default_address = async (req, res) => {
-    const { userInfo } = req.params;
+    const  userInfo = req.id;
     try {
       const address = await customerAddressModel.findOne({
         userId: userInfo,
@@ -108,10 +108,15 @@ class orderController {
 
       if (address) {
         responseReturn(res, 200, {
-          message: "address added successfully",
+          message: "default address fetched successfully",
           defaultAddress: address,
         });
       }
+
+      responseReturn(res, 404, {
+        message: "default address not found",
+        defaultAddress: address,
+      });
     } catch (error) {
       console.log(error.message);
     }
@@ -152,7 +157,8 @@ class orderController {
   };
 
   place_order = async (req, res) => {
-    const { price, products, shipping_fee, shippingInfo, userId } = req.body;
+    const { price, products, shipping_fee, shippingInfo } = req.body;
+    const userId = req.id
     // console.log("customerOrderProduct==========>>>>>>>", products);
 
     // console.log("price=====> ", price);
@@ -296,6 +302,7 @@ class orderController {
 
   get_admin_orders = async (req, res) => {
     let { page, parPage, searchValue } = req.query;
+    console.log(page,parPage,searchValue)
     page = parseInt(page);
     parPage = parseInt(parPage);
 
@@ -376,7 +383,7 @@ class orderController {
   };
 
   get_seller_orders = async (req, res) => {
-    const { sellerId } = req.params;
+    const  sellerId =req.id
     let { page, parPage, searchValue } = req.query;
     page = parseInt(page);
     parPage = parseInt(parPage);

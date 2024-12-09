@@ -6,7 +6,8 @@ const {
 } = require("mongoose");
 class cardController {
   add_to_card = async (req, res) => {
-    const { userId, productId, quantity } = req.body;
+    const {  productId, quantity } = req.body;
+    const userId = req.id
     try {
       const product = await cardModel.findOne({
         $and: [
@@ -46,7 +47,7 @@ class cardController {
   //_________________________ fetch cart Products _______________________
   get_card_products = async (req, res) => {
     const co = 5;
-    const { userId } = req.params;
+const userId = req.id
     try {
       const card_products = await cardModel.aggregate([
         {
@@ -155,7 +156,7 @@ class cardController {
   };
 
   delete_all_card_product = async (req, res) => {
-    const { userId } = req.params;
+    const  userId  = req.id
     try {
       const deletedItem = await cardModel.deleteMany(
         { userId: new ObjectId(userId) },
@@ -213,6 +214,7 @@ class cardController {
 
   add_wishlist = async (req, res) => {
     const { slug } = req.body;
+    console.log(slug)
     try {
       const product = await wishlistModel.findOne({
         slug,
@@ -233,7 +235,7 @@ class cardController {
   };
 
   get_wishlist = async (req, res) => {
-    const { userId } = req.params;
+    const  userId  = req.id;
     try {
       const wishlists = await wishlistModel.find({
         userId,

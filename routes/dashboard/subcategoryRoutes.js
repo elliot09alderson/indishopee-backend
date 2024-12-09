@@ -9,12 +9,12 @@ router.post(
 );
 router.get(
   "/sub_category-get",
-  authMiddleware,
+  
   subCategoryController.get_sub_category
 );
 router.get(
   "/get-one-subCategory/:subCategoryId",
-  authMiddleware,
+ 
   subCategoryController.get_one_sub_category
 );
 router.delete(

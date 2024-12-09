@@ -1,19 +1,20 @@
 const router = require("express").Router();
 const orderController = require("../../controllers/order/orderController");
+const { customerMiddleware, authMiddleware } = require("../../middlewares/authMiddleware");
 
 // ---- customer
-router.post("/home/order/palce-order", orderController.place_order);
+router.post("/home/order/palce-order",customerMiddleware, orderController.place_order);
 router.get("/generate-invoice/:orderId", orderController.generateInvoice);
 router.post(
-  "/home/customer/add_address/:userInfo",
+  "/home/customer/add_address",customerMiddleware,
   orderController.add_address
 );
 router.get(
-  "/home/customer/get_all_address/:userInfo",
+  "/home/customer/get_all_address",customerMiddleware,
   orderController.get_all_address
 );
 router.get(
-  "/home/customer/get_default_address/:userInfo",
+  "/home/customer/get_default_address",customerMiddleware,
   orderController.get_default_address
 );
 router.patch(
@@ -32,7 +33,7 @@ router.get(
   "/home/customer/gat-orders/:customerId/:status",
   orderController.get_orders
 );
-router.get("/home/customer/gat-order/:orderId", orderController.get_order);
+router.get("/home/customer/gat-order/:orderId",customerMiddleware, orderController.get_order);
 
 router.post("/order/create-payment", orderController.create_payment);
 router.get("/order/confirm/:orderId", orderController.order_confirm);
@@ -47,10 +48,10 @@ router.put(
 
 // ---seller
 
-router.get("/seller/orders/:sellerId", orderController.get_seller_orders);
+router.get("/seller/orders",authMiddleware, orderController.get_seller_orders);
 router.get("/seller/order/:orderId", orderController.get_seller_order);
 router.put(
-  "/seller/order-status/update/:orderId",
+  "/seller/order-status/update/:orderId",authMiddleware,
   orderController.seller_order_status_update
 );
 

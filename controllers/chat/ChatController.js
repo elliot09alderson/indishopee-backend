@@ -37,7 +37,7 @@ class chatController {
                         $push: {
                             myFriends: {
                                 fdId: sellerId,
-                                name: seller.shopInfo?.shopName,
+                                name: seller.businessName,
                                 image: seller.image
                             }
                         }

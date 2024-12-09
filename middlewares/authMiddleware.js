@@ -16,7 +16,7 @@ module.exports.authMiddleware = async (req, res, next) => {
       return res.status(409).json({ error: "Please login" });
     }
   }
-};
+};  
 module.exports.customerMiddleware = async (req, res, next) => {
   const { customerToken, accessToken } = req.cookies;
   // const { accessToken } = req.cookies;
