@@ -35,7 +35,7 @@ router.post("/login/verify-otp", verifyLoginPhoneOtp);
 
 //____________REGISTER ___________
 router.post("/send-otp", registerUser);
-router.post("/verify-otp", verifyRegisterationPhoneOtp);
+router.post("/register/verify-otp", verifyRegisterationPhoneOtp);
 router.post("/set-password", setPassword);
 
 //____________ PASSWORD ___________

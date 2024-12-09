@@ -50,7 +50,7 @@ const verifyLoginPhoneOtp = async (req, res) => {
   try {
     const user = await customerModel.findOne({ phonenumber });
 
-    if (!user.optVerified) {
+    if (!user.isRegistered) {
       return res.status(400).json({
         success: false,
         status: 400,
@@ -117,6 +117,7 @@ async function registerUser(req, res) {
     const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 30 * 1000); // OTP valid for 30 sec
     if (isUserExist) {
+      console.log(isUserExist.isRegistered);
       if (!isUserExist.isRegistered) {
         await customerModel.findOneAndUpdate(
           { phonenumber },
@@ -172,6 +173,7 @@ async function registerUser(req, res) {
 }
 
 const verifyRegisterationPhoneOtp = async (req, res) => {
+  console.log("sadasdsadasdsadasd");
   const { phonenumber, otp } = req.body;
   if (!phonenumber || !otp)
     return res
@@ -202,7 +204,7 @@ const verifyRegisterationPhoneOtp = async (req, res) => {
       id: user._id,
       phonenumber: user.phonenumber,
       email: user.email,
-      name,
+      name: user.name,
     });
     res
       .cookie("accessToken", token, {
@@ -223,7 +225,7 @@ const verifyRegisterationPhoneOtp = async (req, res) => {
       success: false,
       status: 500,
       message: "Error verifying OTP",
-      error,
+      error: error.message,
     });
   }
 };
