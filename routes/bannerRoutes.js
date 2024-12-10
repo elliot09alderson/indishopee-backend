@@ -3,7 +3,7 @@ const router = require("express").Router();
 const bannerController = require("../controllers/bannerController");
 const { authMiddleware } = require("../middlewares/authMiddleware");
 
-router.post("/createbanner", authMiddleware, bannerController.add_banner);
+router.post("/createbanner", bannerController.add_banner);
 router.get(
   "/getallbannerItems",
   authMiddleware,

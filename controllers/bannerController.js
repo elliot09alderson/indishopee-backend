@@ -31,7 +31,7 @@ class bannerController {
             );
 
             if (result) {
-              const banner = await bannerModal.create({
+              const banner = await bannerModel.create({
                 heading,
                 subheading,
                 btnText,
@@ -98,7 +98,7 @@ class bannerController {
   deleteBanner = async (req, res) => {
     try {
       const { id } = req.params;
-      const deletedBanner = await bannerModal.findByIdAndDelete(id, {
+      const deletedBanner = await bannerModel.findByIdAndDelete(id, {
         new: true,
       });
       responseReturn(res, 200, { bannerId: deletedBanner._id });

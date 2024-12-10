@@ -300,7 +300,7 @@ class homeControllers {
 
   getEverything = async (req, res) => {
     try {
-      const products = await productModel
+      const best_products = await productModel
         .find({})
         .limit(4)
         .sort({
@@ -329,24 +329,34 @@ class homeControllers {
         })
         .select("_id name images price discount");
       const categorys = await categoryModel.find().select("name _id image ");
-      const carousel_items = await bannerModel.find({ bannerType: "carousel" });
+      const carousel_items = await bannerModel
+        .find({ bannerType: "carousel" })
+        .select("_id bannerType imgUrl heading");
 
-      const sectionOneAds = await bannerModel.find({
-        bannerType: "sectionOne",
-      });
-      const sectionTwoAds = await bannerModel.find({
-        bannerType: "sectionTwo",
-      });
-      const sectionThreeAds = await bannerModel.find({
-        bannerType: "sectionThree",
-      });
-      const sectionFourAds = await bannerModel.find({
-        bannerType: "sectionFour",
-      });
+      const sectionOneAds = await bannerModel
+        .find({
+          bannerType: "sectionOne",
+        })
+        .select("_id bannerType imgUrl heading");
+      const sectionTwoAds = await bannerModel
+        .find({
+          bannerType: "sectionTwo",
+        })
+        .select("_id bannerType imgUrl heading");
+      const sectionThreeAds = await bannerModel
+        .find({
+          bannerType: "sectionThree",
+        })
+        .select("_id bannerType imgUrl heading");
+      const sectionFourAds = await bannerModel
+        .find({
+          bannerType: "sectionFour",
+        })
+        .select("_id bannerType imgUrl heading");
       responseReturn(res, 200, {
         categorys,
         products: {
-          products,
+          best_products,
           latest_product,
           topRated_product,
           discount_product,
