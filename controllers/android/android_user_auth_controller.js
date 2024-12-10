@@ -15,7 +15,7 @@ async function sendLoginPhoneOTP(req, res) {
     let user = await customerModel.findOne({ phonenumber });
     if (!user)
       return res
-        .status(404)
+        .status(200)
         .json({ status: 404, message: "User not registered" });
 
     user.otp = otp;
@@ -177,7 +177,7 @@ const verifyRegisterationPhoneOtp = async (req, res) => {
   const { phonenumber, otp } = req.body;
   if (!phonenumber || !otp)
     return res
-      .status(400)
+      .status(200)
       .json({ status: 400, message: "Phonenumber and OTP are required" });
 
   try {
@@ -188,7 +188,7 @@ const verifyRegisterationPhoneOtp = async (req, res) => {
       Number(user.otp) !== Number(otp) ||
       user.otpExpiry < Date.now()
     ) {
-      return res.status(400).json({
+      return res.status(200).json({
         status: 400,
         success: false,
         message: "Invalid or expired OTP",
@@ -221,7 +221,7 @@ const verifyRegisterationPhoneOtp = async (req, res) => {
         message: "OTP verified successfully",
       });
   } catch (error) {
-    res.status(500).json({
+    res.json({
       success: false,
       status: 500,
       message: "Error verifying OTP",
@@ -233,14 +233,14 @@ const resetPasswordSendOtp = async (req, res) => {
   const { phonenumber } = req.body;
   if (!phonenumber)
     return res
-      .status(400)
+      .status(200)
       .json({ status: 400, message: "Phonenumber is required" });
 
   try {
     const user = await customerModel.findOne({ phonenumber });
     if (!user)
       return res
-        .status(404)
+        .status(200)
         .json({ status: 404, message: "User not registered" });
 
     const otp = generateOTP();
