@@ -28,10 +28,6 @@ router.get("/customer/logout", customerAuthController.customer_logout);
  *                      @FOR_ANDROID
  */
 
-
-
-
-
 //____________ LOGIN ___________
 
 router.post("/logout", userPhoneLogout);

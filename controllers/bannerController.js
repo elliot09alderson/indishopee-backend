@@ -1,4 +1,3 @@
-const bannerModal = require("../../models/bannerModel.js");
 const cloudinary = require("cloudinary").v2;
 
 const formidable = require("formidable");

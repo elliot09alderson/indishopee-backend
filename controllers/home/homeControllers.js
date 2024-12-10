@@ -345,15 +345,19 @@ class homeControllers {
       });
       responseReturn(res, 200, {
         categorys,
-        products,
-        latest_product,
-        topRated_product,
-        discount_product,
-        carousel_items,
-        sectionFourAds,
-        sectionThreeAds,
-        sectionTwoAds,
-        sectionOneAds,
+        products: {
+          products,
+          latest_product,
+          topRated_product,
+          discount_product,
+        },
+        banners: {
+          carousel_items,
+          sectionFourAds,
+          sectionThreeAds,
+          sectionTwoAds,
+          sectionOneAds,
+        },
         message: "items fetched successfully",
         status: 200,
       });

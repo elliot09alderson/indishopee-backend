@@ -152,7 +152,7 @@ app.use("/api", require("./routes/chatRoutes"));
 
 app.use("/api", require("./routes/paymentRoutes"));
 app.use("/api", require("./routes/dashboard/dashboardIndexRoutes"));
-
+app.use("/api/admin", require("./routes/bannerRoutes.js"));
 app.use("/api/home", require("./routes/home/homeRoutes"));
 app.use("/api", require("./routes/authRoutes"));
 app.use("/api", require("./routes/order/orderRoutes"));
