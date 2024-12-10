@@ -301,34 +301,78 @@ class homeControllers {
 
   getEverything = async (req, res) => {
     try {
-      const best_products = await productModel
-        .find({})
-        .limit(4)
-        .sort({
-          createdAt: -1,
-        })
-        .select("_id name images price discount");
-      const latest_product = await productModel
-        .find({})
-        .limit(4)
-        .sort({
-          createdAt: -1,
-        })
-        .select("_id name images price discount");
-      const topRated_product = await productModel
-        .find({})
-        .limit(4)
-        .sort({
-          rating: -1,
-        })
-        .select("_id name images price discount");
-      const discount_product = await productModel
-        .find({})
-        .limit(4)
-        .sort({
-          discount: -1,
-        })
-        .select("_id name images price discount");
+      const best_products = await productModel.aggregate([
+        {
+          $sort: { createdAt: -1 }, // Sort by createdAt in descending order (newest first)
+        },
+        {
+          $limit: 4, // Limit the result to 4 products
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            price: 1,
+            subcategory: 1,
+            discount: 1,
+            image: { $arrayElemAt: ["$images", 0] }, // Get the first image from the images array
+          },
+        },
+      ]);
+      const latest_product = await productModel.aggregate([
+        {
+          $sort: { createdAt: -1 }, // Sort by createdAt in descending order (newest first)
+        },
+        {
+          $limit: 4, // Limit the result to 4 products
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            price: 1,
+            subcategory: 1,
+            discount: 1,
+            image: { $arrayElemAt: ["$images", 0] }, // Get the first image from the images array
+          },
+        },
+      ]);
+      const topRated_product = await productModel.aggregate([
+        {
+          $sort: { rating: -1 }, // Sort by createdAt in descending order (newest first)
+        },
+        {
+          $limit: 4, // Limit the result to 4 products
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            price: 1,
+            subcategory: 1,
+            discount: 1,
+            image: { $arrayElemAt: ["$images", 0] }, // Get the first image from the images array
+          },
+        },
+      ]);
+      const discount_product = await productModel.aggregate([
+        {
+          $sort: { discount: -1 }, // Sort by createdAt in descending order (newest first)
+        },
+        {
+          $limit: 4, // Limit the result to 4 products
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            price: 1,
+            subcategory: 1,
+            discount: 1,
+            image: { $arrayElemAt: ["$images", 0] }, // Get the first image from the images array
+          },
+        },
+      ]);
       const categorys = await categoryModel.find().select("name _id image ");
       const carousel_items = await bannerModel
         .find({ bannerType: "carousel" })
@@ -338,22 +382,22 @@ class homeControllers {
         .find({
           bannerType: "sectionOne",
         })
-        .select("_id bannerType imgUrl heading");
+        .select("_id bannerType imgUrl heading ");
       const sectionTwoAds = await bannerModel
         .find({
           bannerType: "sectionTwo",
         })
-        .select("_id bannerType imgUrl heading");
+        .select("_id bannerType imgUrl heading ");
       const sectionThreeAds = await bannerModel
         .find({
           bannerType: "sectionThree",
         })
-        .select("_id bannerType imgUrl heading");
+        .select("_id bannerType imgUrl heading ");
       const sectionFourAds = await bannerModel
         .find({
           bannerType: "sectionFour",
         })
-        .select("_id bannerType imgUrl heading");
+        .select("_id bannerType imgUrl heading ");
 
       const subCats = await subCategory.find().select("name image ");
       responseReturn(res, 200, {
@@ -417,7 +461,23 @@ class homeControllers {
   fetchBySubcat = async (req, res) => {
     const { subcat } = req.params;
 
-    const products = await productModel.find({ subcategory: subcat });
+    const products = await productModel.aggregate([
+      {
+        $match: { subcategory: subcat }, // Filter by subcategory
+      },
+      {
+        $project: {
+          slug: 1,
+          brand: 1,
+          price: 1,
+          stock: 1,
+          discount: 1,
+          name: 1,
+          subcategory: 1,
+          image: { $arrayElemAt: ["$images", 0] }, // Get the first image from the images array
+        },
+      },
+    ]);
     responseReturn(res, 200, {
       message: "products fetched successfully",
       status: 200,
