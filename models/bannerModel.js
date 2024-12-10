@@ -6,17 +6,32 @@ const BannerSchema = new Schema(
       type: String,
       required: true,
     },
-    description: {
+    subheading: {
       type: String,
       required: true,
     },
-    path: {
-      type: String,
-      // required: true,
-    },
-    buttonText: {
+    imgUrl: {
       type: String,
       required: true,
+    },
+    btnText: {
+      type: String,
+      required: true,
+    },
+    bannerType: {
+      type: String,
+      enum: [
+        "carousel",
+        "sectionOne",
+        "sectionTwo",
+        "sectionThree",
+        "sectionFour",
+      ],
+      default: "carousel",
+    },
+    clickUrl: {
+      type: String,
+      requried: true,
     },
   },
   { timestamps: true }

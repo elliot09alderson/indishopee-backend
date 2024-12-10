@@ -27,6 +27,11 @@ router.get("/customer/logout", customerAuthController.customer_logout);
  *
  *                      @FOR_ANDROID
  */
+
+
+
+
+
 //____________ LOGIN ___________
 
 router.post("/logout", userPhoneLogout);
@@ -36,7 +41,7 @@ router.post("/login/verify-otp", verifyLoginPhoneOtp);
 //____________REGISTER ___________
 router.post("/send-otp", registerUser);
 router.post("/register/verify-otp", verifyRegisterationPhoneOtp);
-router.post("/set-password", setPassword);
+// router.post("/set-password", setPassword);
 
 //____________ PASSWORD ___________
 router.post("/resend-otp", resendPhoneOtp);

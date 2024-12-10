@@ -8,6 +8,7 @@ const {
 } = require("mongoose");
 
 const { responseReturn } = require("../../utiles/response");
+const bannerModel = require("../../models/bannerModel");
 class homeControllers {
   formateProduct = (products) => {
     const productArray = [];
@@ -294,6 +295,54 @@ class homeControllers {
       });
     } catch (error) {
       console.log(error);
+    }
+  };
+
+  getEverything = async (req, res) => {
+    try {
+      const products = await productModel.find({}).limit(4).sort({
+        createdAt: -1,
+      });
+      const latest_product = await productModel.find({}).limit(4).sort({
+        createdAt: -1,
+      });
+      const topRated_product = await productModel.find({}).limit(4).sort({
+        rating: -1,
+      });
+      const discount_product = await productModel.find({}).limit(4).sort({
+        discount: -1,
+      });
+      const categorys = await categoryModel.find();
+      const carousel_items = await bannerModel.find({ bannerType: "carousel" });
+
+      const sectionOneAds = await bannerModel.find({
+        bannerType: "sectionOne",
+      });
+      const sectionTwoAds = await bannerModel.find({
+        bannerType: "sectionTwo",
+      });
+      const sectionThreeAds = await bannerModel.find({
+        bannerType: "sectionThree",
+      });
+      const sectionFourAds = await bannerModel.find({
+        bannerType: "sectionFour",
+      });
+      responseReturn(res, 200, {
+        categorys,
+        products,
+        latest_product,
+        topRated_product,
+        discount_product,
+        carousel_items,
+        sectionFourAds,
+        sectionThreeAds,
+        sectionTwoAds,
+        sectionOneAds,
+        message: "items fetched successfully",
+        status: 200,
+      });
+    } catch (error) {
+      console.log(error.message);
     }
   };
 }
