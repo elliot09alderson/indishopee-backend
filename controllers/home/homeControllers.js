@@ -9,6 +9,7 @@ const {
 
 const { responseReturn } = require("../../utiles/response");
 const bannerModel = require("../../models/bannerModel");
+const subCategory = require("../../models/subCategory");
 class homeControllers {
   formateProduct = (products) => {
     const productArray = [];
@@ -353,8 +354,11 @@ class homeControllers {
           bannerType: "sectionFour",
         })
         .select("_id bannerType imgUrl heading");
+
+      const subCats = await subCategory.find().select("name image ");
       responseReturn(res, 200, {
         categorys,
+        subcategorys: subCats,
         products: {
           best_products,
           latest_product,
@@ -400,6 +404,25 @@ class homeControllers {
     } catch (error) {
       console.log(error.message);
     }
+  };
+
+  allSubcategorys = async (req, res) => {
+    const subCats = await subCategory.find().select("name image ");
+    responseReturn(res, 200, {
+      message: "products fetched successfully",
+      status: 200,
+      subcategorys: subCats,
+    });
+  };
+  fetchBySubcat = async (req, res) => {
+    const { subcat } = req.params;
+
+    const products = await productModel.find({ subcategory: subcat });
+    responseReturn(res, 200, {
+      message: "products fetched successfully",
+      status: 200,
+      products,
+    });
   };
 }
 

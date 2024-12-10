@@ -19,5 +19,7 @@ router.get("/customer/get-reviews/:productId", homeControllers.get_reviews);
 router.get("/all", homeControllers.getEverything);
 
 router.get("/allproducts", homeControllers.allProducts);
+router.get("/allsubcats", homeControllers.allSubcategorys);
+router.get("/products/:subcat", homeControllers.fetchBySubcat);
 
 module.exports = router;
