@@ -44,14 +44,14 @@ const verifyLoginPhoneOtp = async (req, res) => {
   const { phonenumber, otp } = req.body;
   if (!phonenumber || !otp)
     return res
-      .status(400)
+      .status(200)
       .json({ status: 400, message: "Phonenumber and OTP are required" });
 
   try {
     const user = await customerModel.findOne({ phonenumber });
 
     if (!user.isRegistered) {
-      return res.status(400).json({
+      return res.status(200).json({
         success: false,
         status: 400,
         message: "please complete your registeration first",
@@ -63,7 +63,7 @@ const verifyLoginPhoneOtp = async (req, res) => {
       Number(user.otp) !== Number(otp) ||
       user.otpExpiry < Date.now()
     ) {
-      return res.status(400).json({
+      return res.status(200).json({
         success: false,
         status: 400,
         message: "Invalid or expired OTP",
