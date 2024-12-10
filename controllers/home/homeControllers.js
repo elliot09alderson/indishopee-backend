@@ -300,19 +300,35 @@ class homeControllers {
 
   getEverything = async (req, res) => {
     try {
-      const products = await productModel.find({}).limit(4).sort({
-        createdAt: -1,
-      });
-      const latest_product = await productModel.find({}).limit(4).sort({
-        createdAt: -1,
-      });
-      const topRated_product = await productModel.find({}).limit(4).sort({
-        rating: -1,
-      });
-      const discount_product = await productModel.find({}).limit(4).sort({
-        discount: -1,
-      });
-      const categorys = await categoryModel.find();
+      const products = await productModel
+        .find({})
+        .limit(4)
+        .sort({
+          createdAt: -1,
+        })
+        .select("_id name images price discount");
+      const latest_product = await productModel
+        .find({})
+        .limit(4)
+        .sort({
+          createdAt: -1,
+        })
+        .select("_id name images price discount");
+      const topRated_product = await productModel
+        .find({})
+        .limit(4)
+        .sort({
+          rating: -1,
+        })
+        .select("_id name images price discount");
+      const discount_product = await productModel
+        .find({})
+        .limit(4)
+        .sort({
+          discount: -1,
+        })
+        .select("_id name images price discount");
+      const categorys = await categoryModel.find().select("name _id image ");
       const carousel_items = await bannerModel.find({ bannerType: "carousel" });
 
       const sectionOneAds = await bannerModel.find({
