@@ -27,7 +27,7 @@ module.exports.customerMiddleware = async (req, res, next) => {
   const auhthorizationHeader = req.headers.authorization;
 
   // const { accessToken } = req.cookies;
-
+  console.log(customerToken, accessToken, auhthorizationHeader);
   if (!customerToken && !accessToken && !auhthorizationHeader) {
     return res.status(409).json({
       error: "Please login first",

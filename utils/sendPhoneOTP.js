@@ -1,6 +1,7 @@
 const axios = require("axios");
 
 async function sendOTP(MobileNo, OTP) {
+  console.log("MobileNo inside sendOTP fn ", MobileNo);
   const SMS_API_KEY = process.env.SMS_API_KEY;
   const SENDER_ID = process.env.SENDER_ID;
 

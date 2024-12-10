@@ -16,7 +16,8 @@ router.get("/customer/get-reviews/:productId", homeControllers.get_reviews);
  *          @FOR_ANDROID
  */
 
-router.get("/all",homeControllers.getEverything)
+router.get("/all", homeControllers.getEverything);
 
+router.get("/allproducts", homeControllers.allProducts);
 
 module.exports = router;

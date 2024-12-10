@@ -332,7 +332,7 @@ class homeControllers {
       const carousel_items = await bannerModel
         .find({ bannerType: "carousel" })
         .select("_id bannerType imgUrl heading");
-        
+
       const sectionOneAds = await bannerModel
         .find({
           bannerType: "sectionOne",
@@ -370,6 +370,32 @@ class homeControllers {
         },
         message: "items fetched successfully",
         status: 200,
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  allProducts = async (req, res) => {
+    try {
+      const products = await productModel.aggregate([
+        {
+          $project: {
+            slug: 1,
+            brand: 1,
+            price: 1,
+            stock: 1,
+            discount: 1,
+            name: 1,
+            image: { $arrayElemAt: ["$images", 0] }, // Get the first image from the images array
+          },
+        },
+      ]);
+
+      responseReturn(res, 200, {
+        message: "products fetched successfully",
+        status: 200,
+        products,
       });
     } catch (error) {
       console.log(error.message);

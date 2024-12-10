@@ -1,4 +1,5 @@
 const cardModel = require("../../models/cardModel");
+const productModel = require("../../models/productModel");
 const wishlistModel = require("../../models/wishlistModel");
 const { responseReturn } = require("../../utiles/response");
 const {
@@ -6,8 +7,8 @@ const {
 } = require("mongoose");
 class cardController {
   add_to_card = async (req, res) => {
-    const {  productId, quantity } = req.body;
-    const userId = req.id
+    const { productId, quantity } = req.body;
+    const userId = req.id;
     try {
       const product = await cardModel.findOne({
         $and: [
@@ -47,7 +48,7 @@ class cardController {
   //_________________________ fetch cart Products _______________________
   get_card_products = async (req, res) => {
     const co = 5;
-const userId = req.id
+    const userId = req.id;
     try {
       const card_products = await cardModel.aggregate([
         {
@@ -156,7 +157,7 @@ const userId = req.id
   };
 
   delete_all_card_product = async (req, res) => {
-    const  userId  = req.id
+    const userId = req.id;
     try {
       const deletedItem = await cardModel.deleteMany(
         { userId: new ObjectId(userId) },
@@ -212,21 +213,36 @@ const userId = req.id
     }
   };
 
+  /**
+   *              @WISHLIST
+   */
   add_wishlist = async (req, res) => {
     const { slug } = req.body;
-    console.log(slug)
+    console.log(slug);
     try {
       const product = await wishlistModel.findOne({
         slug,
       });
+
       if (product) {
         responseReturn(res, 404, {
           error: "Allready added",
         });
       } else {
-        await wishlistModel.create(req.body);
+        const product = await productModel.findOne({ slug });
+        await wishlistModel.create({
+          userId: req.id,
+          productId: product._id,
+          name: product.name,
+          slug,
+          price: product.price,
+          discount: product.discount,
+          image: product?.images[0],
+          rating: product.rating,
+        });
         responseReturn(res, 201, {
           message: "add to wishlist success",
+          status: 201,
         });
       }
     } catch (error) {
@@ -235,14 +251,19 @@ const userId = req.id
   };
 
   get_wishlist = async (req, res) => {
-    const  userId  = req.id;
+    const userId = req.id;
+    console.log(userId);
     try {
-      const wishlists = await wishlistModel.find({
-        userId,
-      });
+      const wishlists = await wishlistModel
+        .find({
+          userId,
+        })
+        .select("name price discount image rating slug");
       responseReturn(res, 200, {
         wishlistCount: wishlists.length,
         wishlists,
+        status: 200,
+        message: "wishlist fetched ",
       });
     } catch (error) {
       console.log(error.message);
@@ -252,11 +273,21 @@ const userId = req.id
   delete_wishlist = async (req, res) => {
     const { wishlistId } = req.params;
     try {
-      const wishlist = await wishlistModel.findByIdAndDelete(wishlistId);
-      responseReturn(res, 200, {
-        message: "Remove success",
-        wishlistId,
+      const wishlist = await wishlistModel.findByIdAndDelete(wishlistId, {
+        new: true,
       });
+      if (wishlist) {
+        responseReturn(res, 200, {
+          message: "Remove success",
+          wishlistId,
+        });
+      } else {
+        responseReturn(res, 200, {
+          message: "product is already removed ",
+          status: 200,
+          wishlistId,
+        });
+      }
     } catch (error) {
       console.log(error.message);
     }

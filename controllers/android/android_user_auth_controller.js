@@ -13,7 +13,11 @@ async function sendLoginPhoneOTP(req, res) {
     console.log("phonenumber==> ", phonenumber);
     const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 30 * 1000); // 5 minutes from now
-
+    if (!phonenumber) {
+      return res
+        .status(200)
+        .json({ status: 404, message: "please provide phonenumber" });
+    }
     let user = await customerModel.findOne({ phonenumber });
     if (!user)
       return res
@@ -217,6 +221,7 @@ const verifyRegisterationPhoneOtp = async (req, res) => {
           phonenumber,
           token,
           userId: user._id,
+          phonenumber,
         },
         success: true,
         status: 200,
