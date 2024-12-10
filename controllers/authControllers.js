@@ -43,7 +43,7 @@ class authControllers {
       const user = await adminModel.findOne({ email });
 
       if (user) {
-        responseReturn(res, 400, {
+        responseReturn(res, 200, {
           message: "admin already exists",
           code: 400,
         });
@@ -97,10 +97,10 @@ class authControllers {
           await sellerModel.updateOne({ _id: seller._id }, { otp: otp });
           responseReturn(res, 201, { message: "otp sent to your mail" });
         } else {
-          responseReturn(res, 404, { error: "Wrong Credentials..." });
+          responseReturn(res, 200, { error: "Wrong Credentials..." });
         }
       } else {
-        responseReturn(res, 404, { error: "User not Found" });
+        responseReturn(res, 200, { error: "User not Found" });
       }
     } catch (error) {
       responseReturn(res, 500, { error: "Internal server Error" });
@@ -129,7 +129,7 @@ class authControllers {
           status: 200,
         });
       } else {
-        responseReturn(res, 401, { error: "Invalid OTP" });
+        responseReturn(res, 200, { error: "Invalid OTP" });
       }
     } catch (err) {
       responseReturn(res, 500, { error: "Internal server error " });
@@ -159,7 +159,7 @@ class authControllers {
         const user = await sellerModel.findOne({ email });
 
         if (user) {
-          responseReturn(res, 400, {
+          responseReturn(res, 200, {
             message: "seller already exists",
             code: 400,
           });
