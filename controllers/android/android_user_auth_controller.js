@@ -9,6 +9,7 @@ const generateOTP = require("../../utiles/generateOtp.js");
 async function sendLoginPhoneOTP(req, res) {
   try {
     const { phonenumber } = req.body;
+    console.log("phonenumber==> ", phonenumber);
     const otp = generateOTP();
     const otpExpiry = new Date(Date.now() + 30 * 1000); // 5 minutes from now
 

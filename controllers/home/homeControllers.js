@@ -332,7 +332,7 @@ class homeControllers {
       const carousel_items = await bannerModel
         .find({ bannerType: "carousel" })
         .select("_id bannerType imgUrl heading");
-
+        
       const sectionOneAds = await bannerModel
         .find({
           bannerType: "sectionOne",
