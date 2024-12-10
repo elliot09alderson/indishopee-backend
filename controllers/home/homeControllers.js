@@ -298,81 +298,158 @@ class homeControllers {
       console.log(error);
     }
   };
+  // try {
+  //   const best_products = await productModel.aggregate([
+  //     {
+  //       $sort: { createdAt: -1 }, // Sort by createdAt in descending order (newest first)
+  //     },
+  //     {
+  //       $limit: 4, // Limit the result to 4 products
+  //     },
+  //     {
+  //       $project: {
+  //         _id: 1,
+  //         name: 1,
+  //         price: 1,
+  //         subcategory: 1,
+  //         discount: 1,
+  //         image: { $arrayElemAt: ["$images", 0] }, // Get the first image from the images array
+  //       },
+  //     },
+  //   ]);
+  //   const latest_product = await productModel.aggregate([
+  //     {
+  //       $sort: { createdAt: -1 }, // Sort by createdAt in descending order (newest first)
+  //     },
+  //     {
+  //       $limit: 4, // Limit the result to 4 products
+  //     },
+  //     {
+  //       $project: {
+  //         _id: 1,
+  //         name: 1,
+  //         price: 1,
+  //         subcategory: 1,
+  //         discount: 1,
+  //         image: { $arrayElemAt: ["$images", 0] }, // Get the first image from the images array
+  //       },
+  //     },
+  //   ]);
+  //   const topRated_product = await productModel.aggregate([
+  //     {
+  //       $sort: { rating: -1 }, // Sort by createdAt in descending order (newest first)
+  //     },
+  //     {
+  //       $limit: 4, // Limit the result to 4 products
+  //     },
+  //     {
+  //       $project: {
+  //         _id: 1,
+  //         name: 1,
+  //         price: 1,
+  //         subcategory: 1,
+  //         discount: 1,
+  //         image: { $arrayElemAt: ["$images", 0] }, // Get the first image from the images array
+  //       },
+  //     },
+  //   ]);
+  //   const discount_product = await productModel.aggregate([
+  //     {
+  //       $sort: { discount: -1 }, // Sort by createdAt in descending order (newest first)
+  //     },
+  //     {
+  //       $limit: 4, // Limit the result to 4 products
+  //     },
+  //     {
+  //       $project: {
+  //         _id: 1,
+  //         name: 1,
+  //         price: 1,
+  //         subcategory: 1,
+  //         discount: 1,
+  //         image: { $arrayElemAt: ["$images", 0] }, // Get the first image from the images array
+  //       },
+  //     },
+  //   ]);
+  //   const categorys = await categoryModel.find().select("name _id image ");
+  //   const carousel_items = await bannerModel
+  //     .find({ bannerType: "carousel" })
+  //     .select("_id bannerType imgUrl heading");
 
+  //   const sectionOneAds = await bannerModel
+  //     .find({
+  //       bannerType: "sectionOne",
+  //     })
+  //     .select("_id bannerType imgUrl heading ");
+  //   const sectionTwoAds = await bannerModel
+  //     .find({
+  //       bannerType: "sectionTwo",
+  //     })
+  //     .select("_id bannerType imgUrl heading ");
+  //   const sectionThreeAds = await bannerModel
+  //     .find({
+  //       bannerType: "sectionThree",
+  //     })
+  //     .select("_id bannerType imgUrl heading ");
+  //   const sectionFourAds = await bannerModel
+  //     .find({
+  //       bannerType: "sectionFour",
+  //     })
+  //     .select("_id bannerType imgUrl heading ");
+
+  //   const subCats = await subCategory.find().select("name image ");
+  //   responseReturn(res, 200, {
+  //     categorys,
+  //     subcategorys: subCats,
+  //     products: {
+  //       best_products,
+  //       latest_product,
+  //       topRated_product,
+  //       discount_product,
+  //     },
+  //     banners: {
+  //       carousel_items,
+  //       sectionFourAds,
+  //       sectionThreeAds,
+  //       sectionTwoAds,
+  //       sectionOneAds,
+  //     },
+  //     message: "items fetched successfully",
+  //     status: 200,
+  //   });
+  // } catch (error) {
+  //   console.log(error.message);
+  // }
   getEverything = async (req, res) => {
     try {
-      const best_products = await productModel.aggregate([
-        {
-          $sort: { createdAt: -1 }, // Sort by createdAt in descending order (newest first)
-        },
-        {
-          $limit: 4, // Limit the result to 4 products
-        },
-        {
-          $project: {
-            _id: 1,
-            name: 1,
-            price: 1,
-            subcategory: 1,
-            discount: 1,
-            image: { $arrayElemAt: ["$images", 0] }, // Get the first image from the images array
-          },
-        },
-      ]);
-      const latest_product = await productModel.aggregate([
-        {
-          $sort: { createdAt: -1 }, // Sort by createdAt in descending order (newest first)
-        },
-        {
-          $limit: 4, // Limit the result to 4 products
-        },
-        {
-          $project: {
-            _id: 1,
-            name: 1,
-            price: 1,
-            subcategory: 1,
-            discount: 1,
-            image: { $arrayElemAt: ["$images", 0] }, // Get the first image from the images array
-          },
-        },
-      ]);
-      const topRated_product = await productModel.aggregate([
-        {
-          $sort: { rating: -1 }, // Sort by createdAt in descending order (newest first)
-        },
-        {
-          $limit: 4, // Limit the result to 4 products
-        },
-        {
-          $project: {
-            _id: 1,
-            name: 1,
-            price: 1,
-            subcategory: 1,
-            discount: 1,
-            image: { $arrayElemAt: ["$images", 0] }, // Get the first image from the images array
-          },
-        },
-      ]);
-      const discount_product = await productModel.aggregate([
-        {
-          $sort: { discount: -1 }, // Sort by createdAt in descending order (newest first)
-        },
-        {
-          $limit: 4, // Limit the result to 4 products
-        },
-        {
-          $project: {
-            _id: 1,
-            name: 1,
-            price: 1,
-            subcategory: 1,
-            discount: 1,
-            image: { $arrayElemAt: ["$images", 0] }, // Get the first image from the images array
-          },
-        },
-      ]);
+      const best_products = await productModel
+        .find({})
+        .limit(4)
+        .sort({
+          createdAt: -1,
+        })
+        .select("_id name images price subcategory discount");
+      const latest_product = await productModel
+        .find({})
+        .limit(4)
+        .sort({
+          createdAt: -1,
+        })
+        .select("_id name images price subcategory discount");
+      const topRated_product = await productModel
+        .find({})
+        .limit(4)
+        .sort({
+          rating: -1,
+        })
+        .select("_id name images price subcategory discount");
+      const discount_product = await productModel
+        .find({})
+        .limit(4)
+        .sort({
+          discount: -1,
+        })
+        .select("_id name images price subcategory discount");
       const categorys = await categoryModel.find().select("name _id image ");
       const carousel_items = await bannerModel
         .find({ bannerType: "carousel" })
