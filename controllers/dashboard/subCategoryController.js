@@ -4,6 +4,7 @@ const { responseReturn } = require("../../utiles/response");
 const cloudinary = require("cloudinary").v2;
 const formidable = require("formidable");
 const productModel = require("../../models/productModel");
+const { Types } = require("mongoose");
 
 class subCategoryController {
   add_sub_category = async (req, res) => {
@@ -13,16 +14,19 @@ class subCategoryController {
         responseReturn(res, 404, { error: "something error" });
       } else {
         let { name, categoryId } = fields;
+        if (!categoryId) {
+          return responseReturn(res, 400, {
+            error: "please reselect category",
+          });
+        }
         let { image } = files;
         name = name.trim();
-
+        if (!image.filepath) {
+          console.log("please upload image correctly");
+          responseReturn(res, 400, { error: "please upload image correctly" });
+        }
         const slug = name.split(" ").join("-");
-        cloudinary.config({
-          cloud_name: process.env.cloud_name,
-          api_key: process.env.api_key,
-          api_secret: process.env.api_secret,
-          secure: true,
-        });
+
         try {
           // Define the transformation parameters for cropping
           const cropParams = {
@@ -44,6 +48,7 @@ class subCategoryController {
               name,
               categoryName,
               categoryId,
+              slug,
               image: result.url,
             });
 
@@ -209,6 +214,52 @@ class subCategoryController {
         }
       }
     });
+  };
+
+  get_sub_cat_by_category = async (req, res) => {
+    const { categoryId } = req.params;
+
+    try {
+      const subCategorys = await categoryModel.aggregate([
+        {
+          $match: {
+            _id: new Types.ObjectId(categoryId), // Match the category by its ID
+          },
+        },
+        {
+          $lookup: {
+            from: "subcategories", // The name of the subcategories collection
+            localField: "subcategories", // The field in the category document that contains ObjectId references to subcategories
+            foreignField: "_id", // The field in the subcategory document that contains the _id
+            as: "subcategoriesDetails", // This will hold the result of the join
+          },
+        },
+
+        {
+          $unwind: "$subcategoriesDetails", // Flatten the subcategoriesDetails array
+        },
+        {
+          $replaceRoot: {
+            newRoot: "$subcategoriesDetails", // Replace the root with the subcategory document itself
+          },
+        },
+        {
+          $project: {
+            _id: 1, // Optionally remove the _id field from the category
+            name: 1, // Include the array of subcategory objects
+            slug: 1,
+            image: 1,
+          },
+        },
+      ]);
+
+      console.log(subCategorys);
+      if (subCategorys) {
+        responseReturn(res, 200, { subCategorys });
+      }
+    } catch (error) {
+      console.log(error.message);
+    }
   };
 }
 

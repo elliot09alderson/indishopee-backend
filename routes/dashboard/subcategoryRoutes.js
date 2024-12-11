@@ -7,14 +7,21 @@ router.post(
   authMiddleware,
   subCategoryController.add_sub_category
 );
+
+router.get(
+  "/get_sub_cat_by_category/:categoryId",
+
+  subCategoryController.get_sub_cat_by_category
+);
+
 router.get(
   "/sub_category-get",
-  
+
   subCategoryController.get_sub_category
 );
 router.get(
   "/get-one-subCategory/:subCategoryId",
- 
+
   subCategoryController.get_one_sub_category
 );
 router.delete(

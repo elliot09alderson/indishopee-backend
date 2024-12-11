@@ -69,44 +69,84 @@ class homeControllers {
   };
 
   get_product = async (req, res) => {
-    console.log("asdhadas");
     const { slug } = req.params;
     try {
       const product = await productModel.findOne({
         slug,
       });
-      const relatedProducts = await productModel
-        .find({
-          $and: [
-            {
-              _id: {
-                $ne: product.id,
+      console.log(product);
+
+      const relatedProducts = await productModel.aggregate([
+        {
+          $match: {
+            $and: [
+              {
+                _id: {
+                  $ne: product._id,
+                },
               },
-            },
-            {
-              category: {
-                $eq: product.category,
+              {
+                category: {
+                  $eq: product.category,
+                },
               },
-            },
-          ],
-        })
-        .limit(20);
-      const moreProducts = await productModel
-        .find({
-          $and: [
-            {
-              _id: {
-                $ne: product.id,
+            ],
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            slug: 1,
+            category: 1,
+            rating: 1,
+            subcategory: 1,
+            brand: 1,
+            price: 1,
+            discount: 1,
+            stock: 1,
+            description: 1,
+            // Use $arrayElemAt to get the first image
+            image: { $arrayElemAt: ["$images", 0] },
+          },
+        },
+      ]);
+
+      const moreProducts = await productModel.aggregate([
+        {
+          $match: {
+            $and: [
+              {
+                _id: {
+                  $ne: product._id,
+                },
               },
-            },
-            {
-              sellerId: {
-                $eq: product.sellerId,
+              {
+                sellerId: {
+                  $eq: product.sellerId,
+                },
               },
-            },
-          ],
-        })
-        .limit(3);
+            ],
+          },
+        },
+        {
+          $project: {
+            _id: 1,
+            name: 1,
+            slug: 1,
+            category: 1,
+            rating: 1,
+            subcategory: 1,
+            brand: 1,
+            price: 1,
+            discount: 1,
+            stock: 1,
+            description: 1,
+            // Use $arrayElemAt to get the first image
+            image: { $arrayElemAt: ["$images", 0] },
+          },
+        },
+      ]);
       responseReturn(res, 200, {
         product,
         relatedProducts,
@@ -407,6 +447,8 @@ class homeControllers {
           bannerType: "sectionFour",
         })
         .select("_id bannerType imgUrl heading ");
+
+    
       const suggestedSubcats = await categoryModel.aggregate([
         {
           $match: {
@@ -436,6 +478,8 @@ class homeControllers {
                 input: "$subcategories", // Iterate over the populated subcategories array
                 as: "subcategory",
                 in: {
+                  slug: "$$subcategory.slug",
+
                   type: "subcategory",
                   name: "$$subcategory.name", // Include the name of each subcategory
                   image: "$$subcategory.image", // Get the first image if "image" is an array
