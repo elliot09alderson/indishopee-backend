@@ -448,7 +448,6 @@ class homeControllers {
         })
         .select("_id bannerType imgUrl heading ");
 
-    
       const suggestedSubcats = await categoryModel.aggregate([
         {
           $match: {
@@ -543,6 +542,48 @@ class homeControllers {
     }
   };
 
+  categoryList = async (req, res) => {
+    try {
+      const list = await categoryModel.aggregate([
+        {
+          $lookup: {
+            from: "subcategories", // Correct name of the subcategory collection
+            localField: "subcategories", // The field in 'category' that holds the references
+            foreignField: "_id", // The field in 'subcategory' that matches the ObjectId
+            as: "subcategories", // The field to store the populated subcategories
+          },
+        },
+        {
+          $project: {
+            _id: 0, // Hide the _id field from the result
+            name: 1, // my target
+            subcategories: {
+              //here i have to change
+              $map: {
+                input: "$subcategories", // Iterate over the populated subcategories array
+                as: "subcategory",
+                in: {
+                  slug: "$$subcategory.slug",
+
+                  type: "subcategory",
+                  name: "$$subcategory.name", // Include the name of each subcategory
+                  image: "$$subcategory.image", // Get the first image if "image" is an array
+                },
+              },
+            },
+          },
+        },
+      ]);
+
+      responseReturn(res, 200, {
+        message: "products fetched successfully",
+        status: 200,
+        list: list.filter((item) => item.subcategories.length > 0),
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
   allSubcategorys = async (req, res) => {
     const subCats = await subCategory.find().select("name image ");
     responseReturn(res, 200, {

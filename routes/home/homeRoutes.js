@@ -22,4 +22,6 @@ router.get("/allproducts", homeControllers.allProducts);
 router.get("/allsubcats", homeControllers.allSubcategorys);
 router.get("/products/:subcat", homeControllers.fetchBySubcat);
 
+router.get("/category-list", homeControllers.categoryList);
+
 module.exports = router;
