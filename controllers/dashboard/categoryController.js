@@ -381,7 +381,7 @@ class categoryController {
   get_featured_categorys = async (req, res) => {
     try {
       const featuredCategorys = await FeaturedCategorys.find().select(
-        "name slug image categorys "
+        "name slug image  "
       );
       responseReturn(res, 200, {
         featuredCategorys,
