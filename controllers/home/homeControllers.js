@@ -489,25 +489,25 @@ class homeControllers {
         },
       ]);
 
-      console.log(suggestedSubcats);
-      const subCats = await subCategory.find().select("name image ");
       responseReturn(res, 200, {
-        categorys,
-        // subcategorys: subCats,
-        suggestedSubcats,
-        products: {
-          best_products,
-          latest_product,
-          topRated_product,
-          discount_product,
-        },
-        banners: {
-          carousel_items,
-          sectionFourAds,
-          sectionThreeAds,
-          sectionTwoAds,
-          sectionOneAds,
-        },
+        message: "data fetched successfully",
+        status: "",
+        homeData: [
+          { name: "Carasoule Banners", type: "Banner", data: carousel_items },
+          { name: "category", type: "Category", data: categorys },
+          { name: "SubCategory", type: "SubCategory", data: suggestedSubcats },
+          { name: "best Product", type: "Product", data: best_products },
+          { name: "Latest Product", type: "Product", data: topRated_product },
+          { name: "Ad1", type: "Ad", data: sectionOneAds },
+          { name: "Latest Product", type: "Product", data: latest_product },
+          {
+            name: "Discounted Product",
+            type: "Product",
+            data: discount_product,
+          },
+          { name: "Ad2", type: "Ad", data: sectionTwoAds },
+        ],
+
         message: "items fetched successfully",
         status: 200,
       });
