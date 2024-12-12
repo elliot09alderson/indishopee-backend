@@ -18,7 +18,7 @@ class categoryController {
         let { image } = files;
         name = name.trim();
 
-        const slug = name.split(" ").join("-");
+        const slug = name.split(" ").join("-").toLowerCase();
 
         try {
           // Define the transformation parameters for cropping
@@ -279,12 +279,13 @@ class categoryController {
   add_cats_to_featured_category = async (req, res) => {
     const { featuredId } = req.params;
     const { slug } = req.body;
-    if (!slug && featuredId) {
+
+    if (!slug || !featuredId) {
       responseReturn(res, 400, { message: "please provide all the details" });
     }
     try {
       const addedCats = await FeaturedCategorys.findOneAndUpdate(
-        featuredId,
+        { _id: featuredId },
         {
           $addToSet: { categorys: slug },
         },
@@ -294,7 +295,9 @@ class categoryController {
       if (!addedCats) {
         responseReturn(res, 400, { message: "failed to append category" });
       }
+      responseReturn(res, 200, { message: " category added successfully" });
     } catch (error) {
+      console.log(error.message);
       responseReturn(res, 400, { message: "operation failed " });
     }
   };
@@ -361,7 +364,7 @@ class categoryController {
   get_featured_categorys = async (req, res) => {
     try {
       const featuredCategorys = await FeaturedCategorys.find().select(
-        "name slug image "
+        "name slug image categorys "
       );
       responseReturn(res, 200, { featuredCategorys });
     } catch (error) {
