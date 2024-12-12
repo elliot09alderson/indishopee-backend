@@ -332,17 +332,7 @@ class categoryController {
             _id: "$categories._id",
             categoryName: { $first: "$categories.name" },
             subcategories: {
-              $push: {
-                $map: {
-                  input: "$categories.subcategories",
-                  as: "subcat",
-                  in: {
-                    name: "$$subcat.name",
-                    image: "$$subcat.image",
-                    slug: "$$subcat.slug",
-                  },
-                },
-              },
+              $push: "$categories.subcategories", // Push subcategories directly
             },
           },
         },
@@ -350,12 +340,39 @@ class categoryController {
           $project: {
             _id: 0, // Exclude the MongoDB _id field
             categoryName: 1,
-            subcategories: 1,
+
+            subcategories: {
+              $reduce: {
+                input: "$subcategories",
+                initialValue: [],
+                in: {
+                  $concatArrays: [
+                    "$$value",
+                    {
+                      $map: {
+                        input: "$$this",
+                        as: "subcat",
+                        in: {
+                          name: "$$subcat.name",
+                          image: "$$subcat.image",
+                          slug: "$$subcat.slug",
+                          _id: "$$subcat._id",
+                        },
+                      },
+                    },
+                  ],
+                },
+              },
+            },
           },
         },
       ]);
 
-      responseReturn(res, 200, { featuredSubcats });
+      responseReturn(res, 200, {
+        featuredSubcats,
+        message: "items fetched successfully",
+        status: 200,
+      });
     } catch (error) {
       console.log(error.message);
     }
@@ -366,7 +383,11 @@ class categoryController {
       const featuredCategorys = await FeaturedCategorys.find().select(
         "name slug image categorys "
       );
-      responseReturn(res, 200, { featuredCategorys });
+      responseReturn(res, 200, {
+        featuredCategorys,
+        message: "items fetched successfully",
+        status: 200,
+      });
     } catch (error) {
       responseReturn(res, 400, { error: error.message });
 
