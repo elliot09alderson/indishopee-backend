@@ -6,6 +6,7 @@ const formidable = require("formidable");
 const subCategory = require("../../models/subCategory");
 const productModel = require("../../models/productModel");
 const mongoose = require("mongoose");
+const FeaturedCategorys = require("../../models/FeaturedCategorys");
 class categoryController {
   add_category = async (req, res) => {
     const form = formidable();
@@ -18,12 +19,7 @@ class categoryController {
         name = name.trim();
 
         const slug = name.split(" ").join("-");
-        cloudinary.config({
-          cloud_name: process.env.cloud_name,
-          api_key: process.env.api_key,
-          api_secret: process.env.api_secret,
-          secure: true,
-        });
+
         try {
           // Define the transformation parameters for cropping
           const cropParams = {
@@ -198,7 +194,6 @@ class categoryController {
         responseReturn(res, 404, { error: err.message });
       } else {
         try {
-         
           const result = await cloudinary.uploader.upload(newImage.filepath, {
             folder: "categorys",
           });
@@ -224,6 +219,156 @@ class categoryController {
         }
       }
     });
+  };
+
+  /**
+   *
+   *            FEATURED CATEGORYS
+   *
+   */
+
+  add_featured_category = async (req, res) => {
+    const form = formidable();
+    form.parse(req, async (err, fields, files) => {
+      if (err) {
+        responseReturn(res, 404, { error: "something error" });
+      } else {
+        let { name, catslug } = fields;
+        let { image } = files;
+        name = name.trim();
+
+        const slug = name.split(" ").join("-");
+
+        try {
+          // Define the transformation parameters for cropping
+          const cropParams = {
+            width: 300,
+            height: 300,
+            crop: "crop", // Use 'crop' to perform cropping
+            gravity: "auto", // Use 'auto' to automatically detect the most relevant region
+          };
+          // Upload the cropped image to Cloudinary
+          const result = await cloudinary.uploader.upload(image.filepath, {
+            folder: "categorys",
+            resource_type: "image",
+            transformation: cropParams,
+          });
+          // console.log(result, "result");
+          if (result) {
+            const category = await FeaturedCategorys.create({
+              name,
+              slug,
+              categorys: [catslug],
+              image: result.url,
+            });
+            responseReturn(res, 201, {
+              category,
+              message: "category add success",
+            });
+          } else {
+            responseReturn(res, 404, { error: "Image upload failed" });
+          }
+        } catch (error) {
+          console.log(error);
+          responseReturn(res, 500, { error: "Internal server error" });
+        }
+      }
+    });
+  };
+
+  add_cats_to_featured_category = async (req, res) => {
+    const { featuredId } = req.params;
+    const { slug } = req.body;
+    if (!slug && featuredId) {
+      responseReturn(res, 400, { message: "please provide all the details" });
+    }
+    try {
+      const addedCats = await FeaturedCategorys.findOneAndUpdate(
+        featuredId,
+        {
+          $addToSet: { categorys: slug },
+        },
+        { new: true }
+      );
+
+      if (!addedCats) {
+        responseReturn(res, 400, { message: "failed to append category" });
+      }
+    } catch (error) {
+      responseReturn(res, 400, { message: "operation failed " });
+    }
+  };
+  get_featured_category = async (req, res) => {
+    try {
+      const { slug } = req.params;
+      const featuredSubcats = await FeaturedCategorys.aggregate([
+        {
+          $match: { slug }, // Match the featuredCategory by slug
+        },
+        {
+          $lookup: {
+            from: "categorys", // Name of the categories collection
+            localField: "categorys", // Field in featuredCategorys schema
+            foreignField: "name", // Field in categories schema
+            as: "categories", // Output field
+          },
+        },
+        {
+          $unwind: "$categories", // Unwind categories array
+        },
+        {
+          $lookup: {
+            from: "subcategories", // Name of the subcategories collection
+            localField: "categories._id", // Reference categories by ID
+            foreignField: "categoryId", // Subcategories field linking to categories
+            as: "categories.subcategories", // Output field in categories
+          },
+        },
+        {
+          $group: {
+            _id: "$categories._id",
+            categoryName: { $first: "$categories.name" },
+            subcategories: {
+              $push: {
+                $map: {
+                  input: "$categories.subcategories",
+                  as: "subcat",
+                  in: {
+                    name: "$$subcat.name",
+                    image: "$$subcat.image",
+                    slug: "$$subcat.slug",
+                  },
+                },
+              },
+            },
+          },
+        },
+        {
+          $project: {
+            _id: 0, // Exclude the MongoDB _id field
+            categoryName: 1,
+            subcategories: 1,
+          },
+        },
+      ]);
+
+      responseReturn(res, 200, { featuredSubcats });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  get_featured_categorys = async (req, res) => {
+    try {
+      const featuredCategorys = await FeaturedCategorys.find().select(
+        "name slug image "
+      );
+      responseReturn(res, 200, { featuredCategorys });
+    } catch (error) {
+      responseReturn(res, 400, { error: error.message });
+
+      console.log(error.message);
+    }
   };
 }
 
