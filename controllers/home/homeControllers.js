@@ -151,6 +151,8 @@ class homeControllers {
         product,
         relatedProducts,
         moreProducts,
+        message: "details fetched successfully ",
+        status: 200,
       });
     } catch (error) {
       console.log(error.message);
