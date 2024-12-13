@@ -19,7 +19,7 @@ router.post(
 );
 router.get(
   "/featured-category/:slug",
-  authMiddleware,
+  // authMiddleware,
   categoryController.get_featured_category
 );
 

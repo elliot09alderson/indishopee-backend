@@ -107,7 +107,7 @@ class homeControllers {
             stock: 1,
             description: 1,
             // Use $arrayElemAt to get the first image
-            image: { $arrayElemAt: ["$images", 0] },
+            images: 1,
           },
         },
       ]);
@@ -143,7 +143,7 @@ class homeControllers {
             stock: 1,
             description: 1,
             // Use $arrayElemAt to get the first image
-            image: { $arrayElemAt: ["$images", 0] },
+            images: 1,
           },
         },
       ]);
