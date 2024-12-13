@@ -617,7 +617,7 @@ class homeControllers {
     responseReturn(res, 200, {
       message: "products fetched successfully",
       status: 200,
-      products,
+      data: products,
     });
   };
 }

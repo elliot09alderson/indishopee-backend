@@ -369,7 +369,7 @@ class categoryController {
       ]);
 
       responseReturn(res, 200, {
-        featuredSubcats,
+        data: featuredSubcats,
         message: "items fetched successfully",
         status: 200,
       });
@@ -384,7 +384,7 @@ class categoryController {
         "name slug image  "
       );
       responseReturn(res, 200, {
-        featuredCategorys,
+        data: featuredCategorys,
         message: "items fetched successfully",
         status: 200,
       });

@@ -253,9 +253,12 @@ class subCategoryController {
         },
       ]);
 
-      console.log(subCategorys);
       if (subCategorys) {
-        responseReturn(res, 200, { subCategorys });
+        responseReturn(res, 200, {
+          data: subCategorys,
+          staus: 200,
+          message: "data fetched ",
+        });
       }
     } catch (error) {
       console.log(error.message);
