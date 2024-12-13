@@ -25,8 +25,9 @@ class cardController {
         ],
       });
       if (product) {
-        responseReturn(res, 404, {
+        responseReturn(res, 200, {
           error: "Product already added to card",
+          status: 400,
         });
       } else {
         const product = await cardModel.create({
@@ -35,7 +36,7 @@ class cardController {
           quantity,
         });
 
-        responseReturn(res, 201, {
+        responseReturn(res, 200, {
           message: "Add to card success",
           product,
           status: 200,
@@ -146,12 +147,14 @@ class cardController {
 
       // console.log("card_products===>", p);
       responseReturn(res, 200, {
-        card_products: p,
-        price: calculatePrice,
-        card_product_count,
-        shipping_fee: 85 * p.length,
-        outOfStockProduct,
-        buy_product_item,
+        data: {
+          card_products: p,
+          price: calculatePrice,
+          card_product_count,
+          shipping_fee: 85 * p.length,
+          outOfStockProduct,
+          buy_product_item,
+        },
         status: 200,
         message: "cart items fetched successfully",
       });
