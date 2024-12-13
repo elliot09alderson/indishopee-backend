@@ -13,16 +13,25 @@ router.get(
   cardController.get_card_products
 );
 router.delete(
-  "/home/product/delete-all-cart-product/:userId",
+  "/home/product/delete-all-cart-product",
   customerMiddleware,
   cardController.delete_all_card_product
 );
 router.delete(
   "/home/product/delete-card-product/:card_id",
+  customerMiddleware,
   cardController.delete_card_product
 );
-router.put("/home/product/quantity-inc/:card_id", cardController.quantity_inc);
-router.put("/home/product/quantity-dec/:card_id", cardController.quantity_dec);
+router.put(
+  "/home/product/quantity-inc/:card_id",
+  customerMiddleware,
+  cardController.quantity_inc
+);
+router.put(
+  "/home/product/quantity-dec/:card_id",
+  customerMiddleware,
+  cardController.quantity_dec
+);      
 
 router.post(
   "/home/product/add-to-wishlist",

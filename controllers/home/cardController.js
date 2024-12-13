@@ -38,6 +38,7 @@ class cardController {
         responseReturn(res, 201, {
           message: "Add to card success",
           product,
+          status: 200,
         });
       }
     } catch (error) {
@@ -49,6 +50,7 @@ class cardController {
   get_card_products = async (req, res) => {
     const co = 5;
     const userId = req.id;
+    console.log("heloo");
     try {
       const card_products = await cardModel.aggregate([
         {
@@ -71,7 +73,7 @@ class cardController {
       let calculatePrice = 0;
       let card_product_count = 0;
       const outOfStockProduct = card_products.filter((p) => {
-        p.products[0].stock < p.quantity;
+        p.products[0]?.stock < p.quantity;
       });
       for (let i = 0; i < outOfStockProduct.length; i++) {
         card_product_count = card_product_count + outOfStockProduct[i].quantity;
@@ -150,6 +152,8 @@ class cardController {
         shipping_fee: 85 * p.length,
         outOfStockProduct,
         buy_product_item,
+        status: 200,
+        message: "cart items fetched successfully",
       });
     } catch (error) {
       console.log(error.message);
@@ -166,6 +170,7 @@ class cardController {
       console.log(deletedItem);
       responseReturn(res, 200, {
         message: "success",
+        status: 200,
       });
     } catch (error) {
       console.log(error.message);
@@ -174,10 +179,18 @@ class cardController {
   delete_card_product = async (req, res) => {
     const { card_id } = req.params;
     try {
-      await cardModel.findByIdAndDelete(card_id);
-      responseReturn(res, 200, {
-        message: "success",
-      });
+      const item = await cardModel.findByIdAndDelete(card_id, { new: true });
+      if (item) {
+        responseReturn(res, 200, {
+          message: "success",
+          status: 200,
+        });
+      } else {
+        responseReturn(res, 200, {
+          message: "item already removed",
+          status: 400,
+        });
+      }
     } catch (error) {
       console.log(error.message);
     }
