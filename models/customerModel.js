@@ -16,8 +16,12 @@ const customerSchema = new Schema(
     password: {
       type: String,
       // required: true,
-      select: false,
+      // select: false,
     },
+    address: {
+      type: String,
+    },
+    avatar: { type: String },
     role: {
       type: String,
       default: "seller",

@@ -30,6 +30,10 @@ const productSchema = new Schema(
       type: Number,
       required: true,
     },
+    discountedPrice: {
+      type: Number,
+    },
+
     stock: {
       type: Number,
       default: 1,
@@ -56,6 +60,50 @@ const productSchema = new Schema(
       type: Number,
       default: 0,
     },
+    sponsors: [
+      {
+        type: Schema.ObjectId,
+        ref: "products",
+        // required: true,
+      },
+    ],
+    free_delivery: {
+      type: String,
+      default: "free",
+    },
+    returnPolicy: {
+      type: String,
+      default: "7 days",
+    },
+    color: {
+      type: String,
+    },
+    ram: {
+      type: String,
+    },
+    storage: {
+      type: String,
+    },
+    type: {
+      enum: [
+        "cloths",
+        "shoes",
+        "phones",
+        "beauty",
+        "accessories",
+        "electronics",
+      ],
+      type: String,
+      default: "cloths",
+    },
+    size: { type: String },
+    colorName: { type: String },
+    variations: [
+      {
+        type: Schema.Types.ObjectId,
+        ref: "variants",
+      },
+    ],
   },
   { timestamps: true }
 );
@@ -65,7 +113,7 @@ productSchema.index(
     name: "text",
     category: "text",
     brand: "text",
-    description: "text",
+    // description: "text",
   },
   {
     weights: {

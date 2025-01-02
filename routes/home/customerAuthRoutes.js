@@ -12,6 +12,8 @@ const {
   resetPasswordVerifyOtp,
 } = require("../../controllers/android/android_user_auth_controller");
 const customerAuthController = require("../../controllers/home/customerAuthController");
+const { customerMiddleware } = require("../../middlewares/authMiddleware");
+const upload = require("../../utils/multerConfig");
 /**
  *
  *                      @FOR_WEB
@@ -20,6 +22,7 @@ router.post(
   "/customer/customer-register",
   customerAuthController.customer_register
 );
+
 router.post("/customer/customer-login", customerAuthController.customer_login);
 router.get("/customer/logout", customerAuthController.customer_logout);
 
@@ -45,4 +48,12 @@ router.post("/reset-password", resetPasswordSendOtp);
 router.post("/change-password", changePassword);
 router.post("/reset-password-verify", resetPasswordVerifyOtp);
 
+router.get("/profile", customerMiddleware, customerAuthController.get_details);
+
+router.post(
+  "/profile/edit",
+  customerMiddleware,
+  upload.single("image"),
+  customerAuthController.update_details
+);
 module.exports = router;

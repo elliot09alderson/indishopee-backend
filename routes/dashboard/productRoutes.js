@@ -25,4 +25,19 @@ router.post(
   productController.product_image_update
 );
 
+/**
+ *
+ *
+ *   @ANDROID
+ *
+ */
+
+router.post("/product/sponsor/:productId", productController.addSponsorship);
+router.post(
+  "/filter-options",
+  authMiddleware,
+  productController.addFilterOptions
+);
+router.post("/filter", authMiddleware, productController.addFilter);
+
 module.exports = router;

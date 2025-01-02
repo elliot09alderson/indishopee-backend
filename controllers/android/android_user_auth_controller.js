@@ -32,6 +32,7 @@ async function sendLoginPhoneOTP(req, res) {
     res.json({
       success: true,
       status: 200,
+      otp,
       message: "we have sent login otp to your number",
     });
     console.log("SMS sent successfully:", smsResponse);
@@ -179,7 +180,6 @@ async function registerUser(req, res) {
 }
 
 const verifyRegisterationPhoneOtp = async (req, res) => {
-  console.log("sadasdsadasdsadasd");
   const { phonenumber, otp } = req.body;
   if (!phonenumber || !otp)
     return res

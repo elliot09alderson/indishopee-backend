@@ -7,7 +7,7 @@ module.exports.authMiddleware = async (req, res, next) => {
   const { accessToken } = req.cookies;
   console.log(req.headers.authorization);
   if (!accessToken && !auhthorizationHeader) {
-    return res.status(409).json({ error: "Please login first" });
+    return res.status(200).json({ error: "Please login first" });
   } else {
     try {
       const deCodeToken = await jwt.verify(accessToken, process.env.SECRET);
@@ -17,7 +17,7 @@ module.exports.authMiddleware = async (req, res, next) => {
       next();
     } catch (error) {
       return res
-        .status(409)
+        .status(200)
         .json({ error: "Please login", message: "login please ", status: 400 });
     }
   }
@@ -27,12 +27,39 @@ module.exports.customerMiddleware = async (req, res, next) => {
   const auhthorizationHeader = req.headers.authorization;
 
   // const { accessToken } = req.cookies;
-  if (!customerToken && !accessToken && !auhthorizationHeader) {
-    return res.status(409).json({
+  if (!customerToken && !auhthorizationHeader) {
+    return res.status(200).json({
       error: "Please login first",
       message: "login please ",
       status: 400,
     });
+  } else {
+    try {
+      const deCodeToken = await jwt.verify(
+        customerToken || auhthorizationHeader,
+        process.env.SECRET
+      );
+
+      req.role = deCodeToken.role || "seller";
+      req.user = deCodeToken;
+      req.token = customerToken || auhthorizationHeader;
+      req.id = deCodeToken.id;
+      next();
+    } catch (error) {
+      return res
+        .status(200)
+        .json({ error: "Please login", message: "login please ", status: 400 });
+    }
+  }
+};
+
+module.exports.searchMiddleware = async (req, res, next) => {
+  const { customerToken, accessToken } = req.cookies;
+  const auhthorizationHeader = req.headers.authorization;
+
+  // const { accessToken } = req.cookies;
+  if (!customerToken && !auhthorizationHeader) {
+    next();
   } else {
     try {
       const deCodeToken = await jwt.verify(
@@ -47,9 +74,8 @@ module.exports.customerMiddleware = async (req, res, next) => {
       req.id = deCodeToken.id;
       next();
     } catch (error) {
-      return res
-        .status(409)
-        .json({ error: "Please login", message: "login please ", status: 400 });
+      console.log(error.message);
+      next();
     }
   }
 };

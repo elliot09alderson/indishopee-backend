@@ -10,6 +10,8 @@ const {
 const { responseReturn } = require("../../utiles/response");
 const bannerModel = require("../../models/bannerModel");
 const subCategory = require("../../models/subCategory");
+const recentSearch = require("../../models/recentSearch");
+const filteroptionModel = require("../../models/filteroptionModel");
 class homeControllers {
   formateProduct = (products) => {
     const productArray = [];
@@ -74,7 +76,6 @@ class homeControllers {
       const product = await productModel.findOne({
         slug,
       });
-      console.log(product);
 
       const relatedProducts = await productModel.aggregate([
         {
@@ -194,28 +195,87 @@ class homeControllers {
       });
       const totalProduct = new queryProducts(products, req.query)
         .categoryQuery()
+
         .searchQuery()
         .priceQuery()
         .ratingQuery()
         .sortByPrice()
         .countProducts();
 
-      console.log(req.query);
+      /**
+       *
+       * @recent_searches
+       *
+       */
+
+      const query = req.query.searchValue;
+      const userId = req.id;
+
+      if (userId && query) {
+        try {
+          // Find the recent searches for the user
+          let RecentSearch = await recentSearch.findOne({ userId });
+
+          if (!RecentSearch) {
+            // If the user doesn't have a recent search, create a new record
+            RecentSearch = new recentSearch({ userId, searches: [query] });
+          } else {
+            // Check if the query already exists
+            if (!RecentSearch.searches.includes(query)) {
+              // Add the query to the beginning of the array
+              RecentSearch.searches.unshift(query);
+
+              // Limit the array to the latest 10 searches
+              if (RecentSearch.searches.length > 10) {
+                RecentSearch.searches.pop();
+              }
+            }
+          }
+
+          // Save the recent searches
+          await RecentSearch.save();
+        } catch (error) {
+          console.error(error.message);
+        }
+      }
 
       const result = new queryProducts(products, req.query)
         .categoryQuery()
-        // .searchQuery()
+
+        .searchQuery()
         .ratingQuery()
         .priceQuery()
         .sortByPrice()
-        // .skip()
-        // .limit()
+        .skip()
+        .limit()
         .getProducts();
 
       responseReturn(res, 200, {
         products: result,
         totalProduct,
         parPage,
+      });
+    } catch (error) {
+      console.log(error.message);
+    }
+  };
+
+  get_recent_searches = async (req, res) => {
+    try {
+      const userId = req.id;
+      if (userId) {
+        const RecentSearches = await recentSearch.findOne({
+          userId,
+        });
+        return responseReturn(res, 200, {
+          searches: RecentSearches?.searches,
+          message: "recent searches fetched.. ",
+          status: 200,
+        });
+      }
+      responseReturn(res, 200, {
+        message: "please login to see searches",
+        status: 400,
       });
     } catch (error) {
       console.log(error.message);
@@ -471,7 +531,7 @@ class homeControllers {
         },
         {
           $project: {
-            _id: 0, // Hide the _id field from the result
+            _id: 1, // Hide the _id field from the result
             name: 1, // my target
             subcategories: {
               //here i have to change
@@ -480,7 +540,7 @@ class homeControllers {
                 as: "subcategory",
                 in: {
                   slug: "$$subcategory.slug",
-
+                  productType: "$$subcategory.productType",
                   type: "subcategory",
                   name: "$$subcategory.name", // Include the name of each subcategory
                   image: "$$subcategory.image", // Get the first image if "image" is an array
@@ -499,7 +559,11 @@ class homeControllers {
           { name: "category", type: "Category", data: categorys },
           { name: "SubCategory", type: "SubCategory", data: suggestedSubcats },
           { name: "best Product", type: "Product", data: best_products },
-          { name: "Latest Product", type: "Product", data: topRated_product },
+          {
+            name: "Top Rated Product",
+            type: "Product",
+            data: topRated_product,
+          },
           { name: "Ad1", type: "Ad", data: sectionOneAds },
           { name: "Latest Product", type: "Product", data: latest_product },
           {
@@ -609,8 +673,10 @@ class homeControllers {
           stock: 1,
           discount: 1,
           name: 1,
+          type: 1,
+          discountedPrice: 1,
           subcategory: 1,
-          image: { $arrayElemAt: ["$images", 0] }, // Get the first image from the images array
+          images: 1,
         },
       },
     ]);
@@ -619,6 +685,312 @@ class homeControllers {
       status: 200,
       data: products,
     });
+  };
+
+  searchProducts = async (req, res) => {
+    try {
+      const { search } = req.params;
+
+      if (!search) {
+        return responseReturn(res, 400, {
+          message: "Please enter a search value.",
+          status: 400,
+        });
+      }
+
+      const searchValue = search.toLowerCase();
+      const categorys = await categoryModel.aggregate([
+        {
+          $match: {
+            name: { $regex: searchValue, $options: "i" },
+          },
+        },
+        {
+          $project: {
+            name: 1,
+            slug: 1,
+            image: 1,
+            _id: 1,
+            type: "category",
+          },
+        },
+        { $limit: 10 },
+      ]);
+      const subcategorys = await subCategory.aggregate([
+        {
+          $match: {
+            name: { $regex: searchValue, $options: "i" },
+          },
+        },
+        {
+          $project: {
+            name: 1,
+            image: 1,
+            slug: 1,
+            _id: 1,
+            type: "subcategory",
+          },
+        },
+        { $limit: 10 },
+      ]);
+
+      const result = await productModel.aggregate([
+        {
+          $match: {
+            $or: [
+              { name: { $regex: searchValue, $options: "i" } },
+              { category: { $regex: searchValue, $options: "i" } },
+              { subcategory: { $regex: searchValue, $options: "i" } },
+              { brand: { $regex: searchValue, $options: "i" } },
+              { description: { $regex: searchValue, $options: "i" } },
+              { shopName: { $regex: searchValue, $options: "i" } },
+            ],
+          },
+        },
+        {
+          $project: {
+            name: 1,
+            slug: 1,
+            shopName: 1,
+            brand: 1,
+            slug: 1,
+            price: 1,
+            type: "product",
+            discount: 1,
+            discountedPrice: 1,
+            rating: 1,
+            returnPolicy: 1,
+            free_delivery: 1,
+            images: { $arrayElemAt: ["$images", 0] },
+          },
+        },
+        { $limit: 30 }, // Limit the number of results to 30
+      ]);
+      const query = search; // The search term
+
+      const image = result[0].images; // The image associated with the search (can be `null` or `undefined` if not provided)
+      console.log(image);
+      const userId = req.id;
+      console.log(req.id);
+      if (userId && query) {
+        try {
+          // Find the recent searches for the user
+
+          console.log("saving the search result");
+          let RecentSearch = await recentSearch.findOne({ userId });
+
+          if (!RecentSearch) {
+            // If the user doesn't have a recent search, create a new record
+            RecentSearch = new recentSearch({
+              userId,
+              searches: [{ searchTerm: query, image: image || null }],
+            });
+          } else {
+            // Check if the query already exists in the searches array
+            const existingSearchIndex = RecentSearch.searches.findIndex(
+              (item) => item.searchTerm === query
+            );
+
+            if (existingSearchIndex === -1) {
+              // Add the new query with image to the beginning of the array
+              RecentSearch.searches.unshift({
+                searchTerm: query,
+                image: image || null,
+              });
+
+              // Limit the array to the latest 10 searches
+              if (RecentSearch.searches.length > 10) {
+                RecentSearch.searches.pop();
+              }
+            } else {
+              // Optional: Move the existing query to the front if it already exists
+              const existingSearch = RecentSearch.searches.splice(
+                existingSearchIndex,
+                1
+              )[0];
+              RecentSearch.searches.unshift(existingSearch);
+            }
+          }
+
+          // Save the updated recent searches
+          await RecentSearch.save();
+        } catch (error) {
+          console.error("Error saving recent search:", error.message);
+        }
+      }
+
+      responseReturn(res, 200, {
+        message: "Data fetched successfully.",
+        data: [...categorys, ...subcategorys, ...result],
+        status: 200,
+      });
+    } catch (error) {
+      console.error("Error in suggestSearch:", error);
+      responseReturn(res, 500, {
+        message: "An error occurred while fetching the data.",
+        status: 500,
+      });
+    }
+  };
+
+  suggestSearch = async (req, res) => {
+    try {
+      const { search } = req.params;
+
+      if (!search) {
+        return responseReturn(res, 200, {
+          message: "Please enter a search value.",
+          status: 400,
+        });
+      }
+
+      const searchValue = search.toLowerCase();
+
+      const result = await productModel.aggregate([
+        {
+          $match: {
+            $or: [
+              { name: { $regex: searchValue, $options: "i" } },
+              { category: { $regex: searchValue, $options: "i" } },
+              { subcategory: { $regex: searchValue, $options: "i" } },
+              { brand: { $regex: searchValue, $options: "i" } },
+              { description: { $regex: searchValue, $options: "i" } },
+              { shopName: { $regex: searchValue, $options: "i" } },
+            ],
+          },
+        },
+        {
+          $project: {
+            name: 1,
+            slug: 1,
+
+            images: { $arrayElemAt: ["$images", 0] },
+          },
+        },
+        { $limit: 10 }, // Limit the number of results to 30
+      ]);
+
+      responseReturn(res, 200, {
+        message: "Data fetched successfully.",
+        data: result,
+        status: 200,
+      });
+    } catch (error) {
+      console.error("Error in suggestSearch:", error);
+      responseReturn(res, 500, {
+        message: "An error occurred while fetching the data.",
+        status: 500,
+      });
+    }
+  };
+
+  getFilterOptions = async (req, res) => {
+    const { productType } = req.params;
+
+    try {
+      const filter = await filteroptionModel.findOne({ productType });
+
+      responseReturn(res, 200, {
+        status: 200,
+        options: filter?.options,
+        message: "filters fetched successfully",
+      });
+    } catch (error) {
+      console.log(error.message);
+      responseReturn(res, 200, {
+        status: 500,
+
+        message: "filters fetching failed",
+      });
+    }
+  };
+
+  getFilterValues = async (req, res) => {
+    const { productType, option } = req.query;
+
+    try {
+      const subCategories = await subCategory.find({ productType });
+      const subCategoryNames = subCategories.map((sub) => sub.name);
+      const products = await productModel.find({
+        subcategory: { $in: subCategoryNames },
+      });
+      // console.log(products);
+      let values = [];
+
+      if (option == "size") {
+        values = [
+          ...new Set(
+            products
+              .map((product) => product[option])
+              .filter(
+                (value) => value !== null && value !== undefined && value !== ""
+              )
+              .flatMap((value) => value.split(" "))
+          ),
+        ].map((item, idx) => ({ value: item, option, productType }));
+      } else {
+        values = [
+          ...new Set(
+            products
+              .map((product) => product[option])
+              .filter(
+                (value) => value !== null && value !== undefined && value !== ""
+              )
+          ),
+        ].map((item, idx) => ({ value: item, option, productType }));
+      }
+
+      responseReturn(res, 200, {
+        status: 200,
+
+        data: values,
+        message: "filters fetched successfully",
+      });
+    } catch (error) {
+      console.log(error.message);
+      responseReturn(res, 200, {
+        status: 500,
+
+        message: "filters fetching failed",
+      });
+    }
+  };
+
+  getFilterProducts = async (req, res) => {
+    const { productType, option, value } = req.query;
+
+    try {
+      let products = [];
+      if (option !== "size") {
+        products = await productModel.find({
+          type: productType,
+          [option]: value,
+        });
+      } else {
+        products = await productModel
+          .find({
+            type: productType,
+            size: new RegExp(`\\b${value}\\b`), // Matches "8" as a whole word
+          })
+          .select(
+            "_id name slug subcategory brand price stock discount images "
+          );
+      }
+
+      responseReturn(res, 200, {
+        status: 200,
+
+        data: products,
+        message: "products fetched successfully",
+      });
+    } catch (error) {
+      console.log(error.message);
+      responseReturn(res, 200, {
+        status: 500,
+
+        message: "filters fetching failed",
+      });
+    }
   };
 }
 

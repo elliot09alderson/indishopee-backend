@@ -1,2 +1,0 @@
-# backend
-indishoppe backend code

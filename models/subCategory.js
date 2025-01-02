@@ -14,6 +14,17 @@ const Subcategory = new Schema(
       type: String,
       required: false,
     },
+    productType: {
+      type: String,
+      enum: [
+        "cloths",
+        "shoes",
+        "phones",
+        "beauty",
+        "accessories",
+        "electronics",
+      ],
+    },
     image: {
       type: String,
       // required: true

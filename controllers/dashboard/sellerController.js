@@ -1,6 +1,6 @@
 const sellerModel = require("../../models/sellerModel");
 const { responseReturn } = require("../../utiles/response");
-const multer = require("multer");
+
 
 class sellerController {
   get_seller_request = async (req, res) => {

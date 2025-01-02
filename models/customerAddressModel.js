@@ -2,21 +2,12 @@ const { Schema, model, default: mongoose } = require("mongoose");
 
 const customerAddress = new Schema(
   {
-    pincode: {
+    name: {
       type: String,
-      required: true,
-    },
-    area: {
-      type: String,
-      required: true,
     },
     phonenumber: {
       type: Number,
       required: true,
-    },
-    defaultAddress: {
-      type: Boolean,
-      required: false,
     },
     city: {
       type: String,
@@ -25,15 +16,29 @@ const customerAddress = new Schema(
       type: String,
       required: true,
     },
+    housenumber: {
+      type: String,
+    },
+    area: {
+      type: String,
+      required: true,
+    },
+
+    typeOfAddress: {
+      type: String,
+      enum: ["Home", "Work", "Other"],
+    },
+    pincode: {
+      type: String,
+    },
+    defaultAddress: {
+      type: Boolean,
+      required: false,
+    },
     landmark: {
       type: String,
-      required: true,
     },
     district: {
-      type: String,
-      required: true,
-    },
-    housenumber: {
       type: String,
     },
     userId: {

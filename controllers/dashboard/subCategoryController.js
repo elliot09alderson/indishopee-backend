@@ -249,6 +249,7 @@ class subCategoryController {
             name: 1, // Include the array of subcategory objects
             slug: 1,
             image: 1,
+            productType: 1,
           },
         },
       ]);
@@ -256,7 +257,7 @@ class subCategoryController {
       if (subCategorys) {
         responseReturn(res, 200, {
           data: subCategorys,
-          staus: 200,
+          status: 200,
           message: "data fetched ",
         });
       }

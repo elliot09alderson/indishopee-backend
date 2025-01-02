@@ -208,6 +208,7 @@ class cardController {
       });
       responseReturn(res, 200, {
         message: "success",
+        status: 200,
       });
     } catch (error) {
       console.log(error.message);
@@ -218,11 +219,17 @@ class cardController {
     try {
       const product = await cardModel.findById(card_id);
       const { quantity } = product;
-      await cardModel.findByIdAndUpdate(card_id, {
-        quantity: quantity - 1,
-      });
+      const updatedCard = await cardModel.findOneAndUpdate(
+        { _id: card_id, quantity: { $gt: 1 } }, // Check if quantity > 1
+        { $inc: { quantity: -1 } }, // Decrement quantity by 1
+        { new: true } // Return the updated document
+      );
+      // await cardModel.findByIdAndUpdate(card_id, {
+      //   quantity: quantity - 1,
+      // });
       responseReturn(res, 200, {
-        message: "success",
+        message: "please increase",
+        status: 400,
       });
     } catch (error) {
       console.log(error.message);
@@ -234,32 +241,42 @@ class cardController {
    */
   add_wishlist = async (req, res) => {
     const { slug } = req.body;
-    console.log(slug);
+
+    const userId = req.id;
     try {
-      const product = await wishlistModel.findOne({
-        slug,
-      });
+      const product = await wishlistModel.findOne({ userId, slug });
+
+      console.log(product);
 
       if (product) {
-        responseReturn(res, 404, {
-          error: "Allready added",
+        responseReturn(res, 200, {
+          message: "item Allready added",
+          status: 400,
         });
       } else {
         const product = await productModel.findOne({ slug });
-        await wishlistModel.create({
-          userId: req.id,
-          productId: product._id,
-          name: product.name,
-          slug,
-          price: product.price,
-          discount: product.discount,
-          image: product?.images[0],
-          rating: product.rating,
-        });
-        responseReturn(res, 201, {
-          message: "add to wishlist success",
-          status: 201,
-        });
+        if (product) {
+          await wishlistModel.create({
+            userId: req.id,
+            productId: product._id,
+            name: product.name,
+            slug,
+            price: product.price,
+            discount: product.discount,
+            image: product?.images[0],
+            rating: product.rating,
+          });
+          responseReturn(res, 200, {
+            message: "add to wishlist success",
+
+            status: 200,
+          });
+        } else {
+          responseReturn(res, 200, {
+            message: "product not found",
+            status: 400,
+          });
+        }
       }
     } catch (error) {
       console.log(error.message);
@@ -274,7 +291,7 @@ class cardController {
         .find({
           userId,
         })
-        .select("name price discount image rating slug");
+        .select("name price discount image rating slug productId");
       responseReturn(res, 200, {
         wishlistCount: wishlists.length,
         wishlists,
@@ -309,10 +326,42 @@ class cardController {
     }
   };
 
+  delete_wishlist_product = async (req, res) => {
+    const { productId } = req.params;
+    const userId = req.id;
+    try {
+      const wishlist = await wishlistModel.findOneAndDelete(
+        { userId, productId },
+        {
+          new: true,
+        }
+      );
+      if (wishlist) {
+        responseReturn(res, 200, {
+          message: "Remove success",
+          data: productId,
+          status: 200,
+        });
+      } else {
+        responseReturn(res, 200, {
+          message: "product is already removed ",
+          status: 200,
+          data: productId,
+        });
+      }
+    } catch (error) {
+      console.log(error.message);
+      responseReturn(res, 200, {
+        message: "server error ",
+        status: 500,
+      });
+    }
+  };
+
   /**
    *
    *
-   * @ANDROID
+   *               @ANDROID
    *
    *
    */
@@ -512,9 +561,11 @@ class cardController {
     try {
       const product = await cardModel.findById(card_id);
       const { quantity } = product;
-      await cardModel.findByIdAndUpdate(card_id, {
-        quantity: quantity - 1,
-      });
+      const updatedCard = await cardModel.findOneAndUpdate(
+        { _id: card_id, quantity: { $gt: 1 } }, // Check if quantity > 1
+        { $inc: { quantity: -1 } }, // Decrement quantity by 1
+        { new: true } // Return the updated document
+      );
       responseReturn(res, 200, {
         message: "success",
       });
